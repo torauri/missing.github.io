@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PHASE BOUND - 境界の立ち位置 -</title>
+  <title>Phase2 - ミッシング -</title>
   <!-- Google Fonts: Outfit & Noto Sans JP -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
     <section id="start-screen" class="screen active">
       <div class="glass-panel text-center">
         <h1 class="glitch-title" data-text="PHASE BOUND">PHASE BOUND</h1>
-        <p class="subtitle">自身のマーカーと立ち位置を見極め、境界を超えよ</p>
+        <p class="subtitle">自身のマーカーと立ち位置を見極め、ミッシングを超えよ</p>
         
         <div class="selection-container">
           <h2>自身のキャラクターを選択してください</h2>
@@ -26,7 +26,7 @@
           </div>
         </div>
         
-        <button id="start-game-btn" class="neon-btn primary disabled" disabled>システム同期開始</button>
+        <button id="start-game-btn" class="neon-btn primary disabled" disabled>ミッシング詠唱開始</button>
       </div>
     </section>
 
@@ -108,8 +108,8 @@
     <div id="game-over-overlay" class="overlay">
       <div class="glass-panel overlay-content border-fail">
         <h2 class="text-fail text-neon-red glitch-title" data-text="SYSTEM ERROR">SYSTEM ERROR</h2>
-        <p class="overlay-desc">正解の立ち位置ではありませんでした。<br>タイムパラドックスが発生し、システムが初期化されます。</p>
-        <button id="retry-game-btn" class="neon-btn danger">システム再起動</button>
+        <p class="overlay-desc">正解の立ち位置ではありませんでした。<br>あなたのミスで固定はワイプしました。</p>
+        <button id="retry-game-btn" class="neon-btn danger">リトライ</button>
       </div>
     </div>
 
@@ -117,7 +117,7 @@
     <div id="game-clear-overlay" class="overlay">
       <div class="glass-panel overlay-content border-clear">
         <h2 class="text-clear text-neon-gold">MISSION COMPLETE</h2>
-        <p class="overlay-desc">全12フェーズの境界線の立ち位置を完全に特定しました！<br>世界線は安定しました。</p>
+        <p class="overlay-desc">全12フェーズのミッシングの立ち位置を完全に特定しました！<br>固定は無事トラインへ進めます。</p>
         
         <div class="stats-container">
           <div class="stat-item">
