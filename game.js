@@ -311,24 +311,33 @@ function renderBaseObjects() {
   circleREl.style.height = `${cr.radius * 2}px`;
 }
 
-// キャラクターをボスの周りに円形配置する
+// キャラクターをボスの上の整列位置に配置する
 function resetCharacterPositions() {
   const container = document.getElementById("characters-container");
   container.innerHTML = "";
   
   const b = config.boss;
-  const radius = 130; // ボスからの距離
   
-  // MTが上(北)、STが下(南)など見やすいように8方向に配置
-  const placementOrder = ["D2", "D4", "ST", "D3", "H2", "H1", "MT", "D1"];
-  
+  // 上段（1行目）: MT, ST, D1, D2
+  // 下段（2行目）: H1, H2, D3, D4
+  const rows = {
+    "MT": { row: 1, col: 0 },
+    "ST": { row: 1, col: 1 },
+    "D1": { row: 1, col: 2 },
+    "D2": { row: 1, col: 3 },
+    "H1": { row: 2, col: 0 },
+    "H2": { row: 2, col: 1 },
+    "D3": { row: 2, col: 2 },
+    "D4": { row: 2, col: 3 }
+  };
+
+  const colOffset = [-90, -30, 30, 90]; // 横方向の間隔 (60px間隔で中央揃え)
+  const rowOffset = [-130, -75];         // 縦方向の間隔 (ボスからのYオフセット)
+
   CHAR_NAMES.forEach(name => {
-    const orderIdx = placementOrder.indexOf(name);
-    // 角度の計算 (3 o'clock is 0, clockwise)
-    const angle = (orderIdx * 45) * Math.PI / 180;
-    
-    const x = b.x + Math.cos(angle) * radius;
-    const y = b.y + Math.sin(angle) * radius;
+    const pos = rows[name];
+    const x = b.x + colOffset[pos.col];
+    const y = b.y + rowOffset[pos.row - 1];
     
     characters[name].x = x;
     characters[name].y = y;
