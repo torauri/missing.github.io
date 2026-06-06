@@ -143,6 +143,10 @@ function startGame() {
   document.getElementById("start-screen").classList.remove("active");
   document.getElementById("game-screen").classList.add("active");
   
+  // 画面サイズに合わせた再スケーリングを実行（はみ出し防止）
+  resizeGameField();
+  setTimeout(resizeGameField, 100); // 遅延実行でレンダリング完了後にフィットさせる
+  
   // 開始時間記録
   startTime = Date.now();
   currentPhase = 1;
@@ -222,6 +226,9 @@ function assignInitialMarkers() {
 function startPhase(phaseNum) {
   currentPhase = phaseNum;
   isAnimating = false;
+  
+  // フェーズ開始時にスケーリングを再計算
+  resizeGameField();
   
   // ヘッダー表示更新
   document.getElementById("current-phase-num").textContent = String(phaseNum).padStart(2, "0");
