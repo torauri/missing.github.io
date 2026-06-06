@@ -1,0 +1,615 @@
+{
+  "boss": {
+    "x": 518,
+    "y": 229,
+    "radius": 70
+  },
+  "circle_left": {
+    "x": 384,
+    "y": 383,
+    "radius": 100
+  },
+  "circle_right": {
+    "x": 653,
+    "y": 380,
+    "radius": 100
+  },
+  "phases": {
+    "1": {
+      "buttons": [
+        {
+          "id": "btn_1_1",
+          "label": "右塔外",
+          "x": 557,
+          "y": 270,
+          "w": 59,
+          "h": 37,
+          "condition": "グループ2 and (D1 or D2 or D3 or D4)"
+        },
+        {
+          "id": "btn_1_2",
+          "label": "右塔内上",
+          "x": 636,
+          "y": 273,
+          "w": 55,
+          "h": 53,
+          "condition": "グループ1 and 頭割り"
+        },
+        {
+          "id": "btn_1_3",
+          "label": "右塔内下",
+          "x": 656,
+          "y": 431,
+          "w": 56,
+          "h": 45,
+          "condition": "グループ1 and 円"
+        },
+        {
+          "id": "btn_1_4",
+          "label": "左塔中心",
+          "x": 357,
+          "y": 365,
+          "w": 57,
+          "h": 34,
+          "condition": "グループ1 and 頭割り"
+        },
+        {
+          "id": "btn_1_5",
+          "label": "左塔内下",
+          "x": 357,
+          "y": 442,
+          "w": 61,
+          "h": 36,
+          "condition": "グループ1 and 扇"
+        },
+        {
+          "id": "btn_1_6",
+          "label": "左塔外上",
+          "x": 448,
+          "y": 288,
+          "w": 54,
+          "h": 36,
+          "condition": "グループ2 and (MT or ST)"
+        },
+        {
+          "id": "btn_1_7",
+          "label": "左塔外下",
+          "x": 360,
+          "y": 489,
+          "w": 58,
+          "h": 31,
+          "condition": "グループ2 and (H1 or H2)"
+        }
+      ],
+      "change_target_group": "グループ1"
+    },
+    "2": {
+      "buttons": [
+        {
+          "id": "btn_2_1",
+          "label": "Dマーカー",
+          "x": 215,
+          "y": 214,
+          "w": 73,
+          "h": 40,
+          "condition": "グループ2 and (H1 or H2)"
+        },
+        {
+          "id": "btn_2_2",
+          "label": "ボス右上",
+          "x": 571,
+          "y": 139,
+          "w": 67,
+          "h": 33,
+          "condition": "グループ2 and (D1 or D2)"
+        },
+        {
+          "id": "btn_2_3",
+          "label": "Bマーカー",
+          "x": 752,
+          "y": 216,
+          "w": 75,
+          "h": 40,
+          "condition": "グループ2 and (D3 or D4)"
+        },
+        {
+          "id": "btn_2_4",
+          "label": "ボス左上",
+          "x": 404,
+          "y": 137,
+          "w": 60,
+          "h": 37,
+          "condition": "グループ2 and (MT or ST)"
+        },
+        {
+          "id": "btn_2_5",
+          "label": "左塔上",
+          "x": 373,
+          "y": 287,
+          "w": 71,
+          "h": 34,
+          "condition": "グループ1 and 扇"
+        },
+        {
+          "id": "btn_2_6",
+          "label": "右塔上",
+          "x": 585,
+          "y": 294,
+          "w": 82,
+          "h": 41,
+          "condition": "グループ1 and 扇"
+        },
+        {
+          "id": "btn_2_7",
+          "label": "左塔下",
+          "x": 357,
+          "y": 450,
+          "w": 58,
+          "h": 31,
+          "condition": "グループ1 and 円"
+        },
+        {
+          "id": "btn_2_8",
+          "label": "右塔下",
+          "x": 630,
+          "y": 444,
+          "w": 56,
+          "h": 35,
+          "condition": "グループ1 and 円"
+        }
+      ],
+      "change_target_group": "グループ1"
+    },
+    "3": {
+      "buttons": [],
+      "change_target_group": ""
+    },
+    "4": {
+      "buttons": [
+        {
+          "id": "btn_1_1",
+          "label": "右塔外",
+          "x": 557,
+          "y": 270,
+          "w": 59,
+          "h": 37,
+          "condition": "グループ2 and (D1 or D2 or D3 or D4)"
+        },
+        {
+          "id": "btn_1_2",
+          "label": "右塔内上",
+          "x": 636,
+          "y": 273,
+          "w": 55,
+          "h": 53,
+          "condition": "グループ1 and 頭割り"
+        },
+        {
+          "id": "btn_1_3",
+          "label": "右塔内下",
+          "x": 656,
+          "y": 431,
+          "w": 56,
+          "h": 45,
+          "condition": "グループ1 and 円"
+        },
+        {
+          "id": "btn_1_4",
+          "label": "左塔中心",
+          "x": 357,
+          "y": 365,
+          "w": 57,
+          "h": 34,
+          "condition": "グループ1 and 頭割り"
+        },
+        {
+          "id": "btn_1_5",
+          "label": "左塔内下",
+          "x": 357,
+          "y": 442,
+          "w": 61,
+          "h": 36,
+          "condition": "グループ1 and 扇"
+        },
+        {
+          "id": "btn_1_6",
+          "label": "左塔外上",
+          "x": 448,
+          "y": 288,
+          "w": 54,
+          "h": 36,
+          "condition": "グループ2 and (MT or ST)"
+        },
+        {
+          "id": "btn_1_7",
+          "label": "左塔外下",
+          "x": 360,
+          "y": 489,
+          "w": 58,
+          "h": 31,
+          "condition": "グループ2 and (H1 or H2)"
+        }
+      ],
+      "change_target_group": "グループ1"
+    },
+    "5": {
+      "buttons": [
+        {
+          "id": "btn_7_1",
+          "label": "Dマーカー",
+          "x": 215,
+          "y": 214,
+          "w": 73,
+          "h": 40,
+          "condition": "グループ1 and (H1 or H2)"
+        },
+        {
+          "id": "btn_7_2",
+          "label": "ボス右上",
+          "x": 571,
+          "y": 139,
+          "w": 67,
+          "h": 33,
+          "condition": "グループ1 and (D1 or D2)"
+        },
+        {
+          "id": "btn_7_3",
+          "label": "Bマーカー",
+          "x": 752,
+          "y": 216,
+          "w": 75,
+          "h": 40,
+          "condition": "グループ1 and (D3 or D4)"
+        },
+        {
+          "id": "btn_7_4",
+          "label": "ボス左上",
+          "x": 404,
+          "y": 137,
+          "w": 60,
+          "h": 37,
+          "condition": "グループ1 and (MT or ST)"
+        },
+        {
+          "id": "btn_7_5",
+          "label": "左塔上",
+          "x": 373,
+          "y": 287,
+          "w": 71,
+          "h": 34,
+          "condition": "グループ2 and 扇"
+        },
+        {
+          "id": "btn_7_6",
+          "label": "右塔上",
+          "x": 585,
+          "y": 294,
+          "w": 82,
+          "h": 41,
+          "condition": "グループ2 and 扇"
+        },
+        {
+          "id": "btn_7_7",
+          "label": "左塔下",
+          "x": 357,
+          "y": 450,
+          "w": 58,
+          "h": 31,
+          "condition": "グループ2 and 円"
+        },
+        {
+          "id": "btn_7_8",
+          "label": "右塔下",
+          "x": 630,
+          "y": 444,
+          "w": 56,
+          "h": 35,
+          "condition": "グループ2 and 円"
+        }
+      ],
+      "change_target_group": "グループ2"
+    },
+    "6": {
+      "buttons": [],
+      "change_target_group": ""
+    },
+    "7": {
+      "buttons": [
+        {
+          "id": "btn_1_1",
+          "label": "右塔外",
+          "x": 557,
+          "y": 270,
+          "w": 59,
+          "h": 37,
+          "condition": "グループ1 and (D1 or D2 or D3 or D4)"
+        },
+        {
+          "id": "btn_1_2",
+          "label": "右塔内上",
+          "x": 636,
+          "y": 273,
+          "w": 55,
+          "h": 53,
+          "condition": "グループ2 and 頭割り"
+        },
+        {
+          "id": "btn_1_3",
+          "label": "右塔内下",
+          "x": 656,
+          "y": 431,
+          "w": 56,
+          "h": 45,
+          "condition": "グループ2 and 円"
+        },
+        {
+          "id": "btn_1_4",
+          "label": "左塔中心",
+          "x": 357,
+          "y": 365,
+          "w": 57,
+          "h": 34,
+          "condition": "グループ2 and 頭割り"
+        },
+        {
+          "id": "btn_1_5",
+          "label": "左塔内下",
+          "x": 357,
+          "y": 442,
+          "w": 61,
+          "h": 36,
+          "condition": "グループ2 and 扇"
+        },
+        {
+          "id": "btn_1_6",
+          "label": "左塔外上",
+          "x": 448,
+          "y": 288,
+          "w": 54,
+          "h": 36,
+          "condition": "グループ1 and (MT or ST)"
+        },
+        {
+          "id": "btn_1_7",
+          "label": "左塔外下",
+          "x": 360,
+          "y": 489,
+          "w": 58,
+          "h": 31,
+          "condition": "グループ1 and (H1 or H2)"
+        }
+      ],
+      "change_target_group": "グループ2"
+    },
+    "8": {
+      "buttons": [
+        {
+          "id": "btn_7_1",
+          "label": "Dマーカー",
+          "x": 215,
+          "y": 214,
+          "w": 73,
+          "h": 40,
+          "condition": "グループ1 and (H1 or H2)"
+        },
+        {
+          "id": "btn_7_2",
+          "label": "ボス右上",
+          "x": 571,
+          "y": 139,
+          "w": 67,
+          "h": 33,
+          "condition": "グループ1 and (D1 or D2)"
+        },
+        {
+          "id": "btn_7_3",
+          "label": "Bマーカー",
+          "x": 752,
+          "y": 216,
+          "w": 75,
+          "h": 40,
+          "condition": "グループ1 and (D3 or D4)"
+        },
+        {
+          "id": "btn_7_4",
+          "label": "ボス左上",
+          "x": 404,
+          "y": 137,
+          "w": 60,
+          "h": 37,
+          "condition": "グループ1 and (MT or ST)"
+        },
+        {
+          "id": "btn_7_5",
+          "label": "左塔上",
+          "x": 373,
+          "y": 287,
+          "w": 71,
+          "h": 34,
+          "condition": "グループ2 and 扇"
+        },
+        {
+          "id": "btn_7_6",
+          "label": "右塔上",
+          "x": 585,
+          "y": 294,
+          "w": 82,
+          "h": 41,
+          "condition": "グループ2 and 扇"
+        },
+        {
+          "id": "btn_7_7",
+          "label": "左塔下",
+          "x": 357,
+          "y": 450,
+          "w": 58,
+          "h": 31,
+          "condition": "グループ2 and 円"
+        },
+        {
+          "id": "btn_7_8",
+          "label": "右塔下",
+          "x": 630,
+          "y": 444,
+          "w": 56,
+          "h": 35,
+          "condition": "グループ2 and 円"
+        }
+      ],
+      "change_target_group": "グループ2"
+    },
+    "9": {
+      "buttons": [],
+      "change_target_group": ""
+    },
+    "10": {
+      "buttons": [
+        {
+          "id": "btn_1_1",
+          "label": "右塔外",
+          "x": 557,
+          "y": 270,
+          "w": 59,
+          "h": 37,
+          "condition": "グループ1 and (D1 or D2 or D3 or D4)"
+        },
+        {
+          "id": "btn_1_2",
+          "label": "右塔内上",
+          "x": 636,
+          "y": 273,
+          "w": 55,
+          "h": 53,
+          "condition": "グループ2 and 頭割り"
+        },
+        {
+          "id": "btn_1_3",
+          "label": "右塔内下",
+          "x": 656,
+          "y": 431,
+          "w": 56,
+          "h": 45,
+          "condition": "グループ2 and 円"
+        },
+        {
+          "id": "btn_1_4",
+          "label": "左塔中心",
+          "x": 357,
+          "y": 365,
+          "w": 57,
+          "h": 34,
+          "condition": "グループ2 and 頭割り"
+        },
+        {
+          "id": "btn_1_5",
+          "label": "左塔内下",
+          "x": 357,
+          "y": 442,
+          "w": 61,
+          "h": 36,
+          "condition": "グループ2 and 扇"
+        },
+        {
+          "id": "btn_1_6",
+          "label": "左塔外上",
+          "x": 448,
+          "y": 288,
+          "w": 54,
+          "h": 36,
+          "condition": "グループ1 and (MT or ST)"
+        },
+        {
+          "id": "btn_1_7",
+          "label": "左塔外下",
+          "x": 360,
+          "y": 489,
+          "w": 58,
+          "h": 31,
+          "condition": "グループ1 and (H1 or H2)"
+        }
+      ],
+      "change_target_group": "グループ2"
+    },
+    "11": {
+      "buttons": [
+        {
+          "id": "btn_11_1",
+          "label": "Dマーカー",
+          "x": 215,
+          "y": 214,
+          "w": 73,
+          "h": 40,
+          "condition": "グループ2 and (H1 or H2)"
+        },
+        {
+          "id": "btn_11_2",
+          "label": "ボス右上",
+          "x": 571,
+          "y": 139,
+          "w": 67,
+          "h": 33,
+          "condition": "グループ2 and (D1 or D2)"
+        },
+        {
+          "id": "btn_11_3",
+          "label": "Bマーカー",
+          "x": 752,
+          "y": 216,
+          "w": 75,
+          "h": 40,
+          "condition": "グループ2 and (D3 or D4)"
+        },
+        {
+          "id": "btn_11_4",
+          "label": "ボス左上",
+          "x": 404,
+          "y": 137,
+          "w": 60,
+          "h": 37,
+          "condition": "グループ2 and (MT or ST)"
+        },
+        {
+          "id": "btn_11_5",
+          "label": "左塔上",
+          "x": 373,
+          "y": 287,
+          "w": 71,
+          "h": 34,
+          "condition": "グループ1 and 扇"
+        },
+        {
+          "id": "btn_11_6",
+          "label": "右塔上",
+          "x": 585,
+          "y": 294,
+          "w": 82,
+          "h": 41,
+          "condition": "グループ1 and 扇"
+        },
+        {
+          "id": "btn_11_7",
+          "label": "左塔下",
+          "x": 357,
+          "y": 450,
+          "w": 58,
+          "h": 31,
+          "condition": "グループ1 and 円"
+        },
+        {
+          "id": "btn_11_8",
+          "label": "右塔下",
+          "x": 630,
+          "y": 444,
+          "w": 56,
+          "h": 35,
+          "condition": "グループ1 and 円"
+        }
+      ],
+      "change_target_group": "グループ1"
+    },
+    "12": {
+      "buttons": [],
+      "change_target_group": ""
+    }
+  }
+}

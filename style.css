@@ -1,0 +1,740 @@
+:root {
+  --bg-primary: #08090f;
+  --bg-secondary: #0f111a;
+  --bg-glass: rgba(15, 17, 28, 0.7);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  
+  --neon-blue: #00f2fe;
+  --neon-purple: #bd00ff;
+  --neon-red: #ff0055;
+  --neon-green: #39ff14;
+  --neon-yellow: #ffee00;
+  --neon-orange: #ff7700;
+  --neon-gold: #ffd700;
+  
+  --text-primary: #f0f3ff;
+  --text-secondary: #8f9bb3;
+  --text-disabled: #4e5566;
+  
+  --font-main: 'Outfit', 'Noto Sans JP', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body {
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(189, 0, 255, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#app-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 共通ガラスモルフィズムパネル */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  padding: 30px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* タイトルのグリッチエフェクト */
+.glitch-title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  position: relative;
+  color: var(--text-primary);
+  text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  margin-bottom: 40px;
+}
+
+/* 画面切り替え制御 */
+.screen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 1;
+}
+
+.screen.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 1. キャラクター選択画面のスタイル */
+.selection-container {
+  margin-bottom: 30px;
+}
+
+.selection-container h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+}
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.char-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 20px 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.char-card:hover {
+  background: rgba(0, 242, 254, 0.05);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+  transform: translateY(-3px);
+}
+
+.char-card.selected {
+  background: rgba(189, 0, 255, 0.1);
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 20px rgba(189, 0, 255, 0.4);
+}
+
+.char-card .char-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.char-card .char-role {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* ネオンボタン */
+.neon-btn {
+  font-family: var(--font-main);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 15px 40px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+}
+
+.neon-btn.primary {
+  background: transparent;
+  color: var(--neon-blue);
+  border: 2px solid var(--neon-blue);
+}
+
+.neon-btn.primary:hover:not(.disabled) {
+  background: var(--neon-blue);
+  color: var(--bg-primary);
+  box-shadow: 0 0 25px var(--neon-blue);
+}
+
+.neon-btn.success {
+  background: transparent;
+  color: var(--neon-green);
+  border: 2px solid var(--neon-green);
+}
+
+.neon-btn.success:hover {
+  background: var(--neon-green);
+  color: var(--bg-primary);
+  box-shadow: 0 0 25px var(--neon-green);
+}
+
+.neon-btn.danger {
+  background: transparent;
+  color: var(--neon-red);
+  border: 2px solid var(--neon-red);
+}
+
+.neon-btn.danger:hover {
+  background: var(--neon-red);
+  color: var(--bg-primary);
+  box-shadow: 0 0 25px var(--neon-red);
+}
+
+.neon-btn.disabled {
+  color: var(--text-disabled);
+  border-color: var(--text-disabled);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 2. メインゲーム画面のスタイル */
+#game-screen {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+#game-header {
+  width: 95%;
+  max-width: 1024px;
+  padding: 15px 25px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 12px;
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-center {
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+.label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.label-slash, .label-max {
+  font-size: 1rem;
+  color: var(--text-disabled);
+}
+
+.value {
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.group-badge {
+  background: rgba(189, 0, 255, 0.1);
+  border-color: var(--neon-purple);
+  color: var(--neon-purple);
+  text-shadow: 0 0 5px rgba(189, 0, 255, 0.3);
+}
+
+/* ネオンカラースタイル */
+.text-neon-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 242, 254, 0.5); }
+.text-neon-purple { color: var(--neon-purple); text-shadow: 0 0 10px rgba(189, 0, 255, 0.5); }
+.text-neon-red { color: var(--neon-red); text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
+.text-neon-green { color: var(--neon-green); text-shadow: 0 0 10px rgba(57, 255, 20, 0.5); }
+.text-neon-gold { color: var(--neon-gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+
+/* ゲームフィールド用コンテナ */
+#game-container {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 1024x576のアスペクト比固定フィールド */
+#game-field {
+  width: 1024px;
+  height: 576px;
+  background-color: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+/* 背景SFグリッド */
+.field-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* フィールドオブジェクト基本設定 */
+.field-object {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+/* ボス */
+.field-object.boss {
+  background: radial-gradient(circle, #2d0510 30%, #150005 100%);
+  border: 2px solid var(--neon-red);
+  box-shadow: 0 0 30px rgba(255, 0, 85, 0.5);
+  transform: translate(-50%, -50%);
+}
+
+.boss-inner {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background: rgba(255, 0, 85, 0.08);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed rgba(255, 0, 85, 0.3);
+}
+
+.boss-icon {
+  font-size: 1.8rem;
+  color: var(--neon-red);
+  text-shadow: 0 0 8px rgba(255, 0, 85, 0.8);
+}
+
+/* 終焉の巨大テキスト */
+.apocalypse-text {
+  position: absolute;
+  top: -65px;
+  width: 300px;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.apocalypse-text.future {
+  color: var(--neon-blue);
+  text-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0, 242, 254, 0.5);
+  animation: apoc-pulse 1.5s infinite alternate;
+}
+
+.apocalypse-text.past {
+  color: var(--neon-purple);
+  text-shadow: 0 0 20px var(--neon-purple), 0 0 40px rgba(189, 0, 255, 0.5);
+  animation: apoc-pulse 1.5s infinite alternate;
+}
+
+@keyframes apoc-pulse {
+  from { transform: scale(0.95); opacity: 0.8; }
+  to { transform: scale(1.05); opacity: 1; }
+}
+
+/* 円 */
+.field-object.circle {
+  border: 1.5px dashed var(--text-disabled);
+  transform: translate(-50%, -50%);
+}
+
+.field-object.circle.left-circle {
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.05) 0%, rgba(10, 30, 10, 0.2) 100%);
+  border-color: rgba(57, 255, 20, 0.4);
+  box-shadow: inset 0 0 20px rgba(57, 255, 20, 0.1), 0 0 15px rgba(57, 255, 20, 0.1);
+}
+
+.field-object.circle.right-circle {
+  background: radial-gradient(circle, rgba(0, 242, 254, 0.05) 0%, rgba(10, 20, 30, 0.2) 100%);
+  border-color: rgba(0, 242, 254, 0.4);
+  box-shadow: inset 0 0 20px rgba(0, 242, 254, 0.1), 0 0 15px rgba(0, 242, 254, 0.1);
+}
+
+.circle-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+
+.field-object.circle.left-circle .circle-label {
+  color: rgba(57, 255, 20, 0.7);
+  text-shadow: 0 0 5px rgba(57, 255, 20, 0.4);
+}
+
+.field-object.circle.right-circle .circle-label {
+  color: rgba(0, 242, 254, 0.7);
+  text-shadow: 0 0 5px rgba(0, 242, 254, 0.4);
+}
+
+/* アクションボタン（立ち位置） */
+.action-btn {
+  position: absolute;
+  background: rgba(12, 19, 38, 0.6);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  color: var(--neon-blue);
+  border-radius: 8px;
+  font-family: var(--font-main);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  text-align: center;
+  z-index: 2;
+  transform: translate(-50%, -50%); /* 座標の中心がアンカー */
+}
+
+.action-btn:hover {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.action-btn:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+/* 過去/未来誘導フェーズ用の特別なボタンデザイン */
+.action-btn.past-future-btn {
+  background: rgba(189, 0, 255, 0.08);
+  border-color: rgba(189, 0, 255, 0.4);
+  color: var(--text-primary);
+  width: 140px;
+  height: 44px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 22px;
+}
+
+.action-btn.past-future-btn:hover {
+  background: rgba(189, 0, 255, 0.2);
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 15px rgba(189, 0, 255, 0.5);
+}
+
+/* キャラクター要素 */
+.char-pawn {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #141726;
+  border: 2.5px solid var(--text-secondary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #ffffff;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  transition: top 0.6s cubic-bezier(0.25, 1, 0.5, 1), left 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+/* 自キャラクターの特別強調 */
+.char-pawn.player {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 15px rgba(189, 0, 255, 0.8), 0 4px 10px rgba(0,0,0,0.5);
+  animation: player-glow 2s infinite alternate;
+}
+
+@keyframes player-glow {
+  from { box-shadow: 0 0 10px rgba(189, 0, 255, 0.6), 0 4px 10px rgba(0,0,0,0.5); }
+  to { box-shadow: 0 0 20px rgba(189, 0, 255, 1), 0 4px 10px rgba(0,0,0,0.5); }
+}
+
+/* マーカーの見た目 */
+
+/* マーカー表示用の上部バッジ */
+.marker-badge {
+  position: absolute;
+  top: -18px;
+  font-size: 1.1rem;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* 1. 頭割りマーカー (💢マークパルス) */
+.char-pawn.marker-share {
+  border-color: var(--neon-orange);
+}
+
+.char-pawn.marker-share::before {
+  content: '💢';
+  position: absolute;
+  top: -24px;
+  font-size: 1.3rem;
+  animation: share-pulse 0.8s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+
+@keyframes share-pulse {
+  from { transform: scale(0.9) translateY(0); filter: drop-shadow(0 0 2px var(--neon-orange)); }
+  to { transform: scale(1.2) translateY(-4px); filter: drop-shadow(0 0 8px var(--neon-orange)); }
+}
+
+/* 2. 扇マーカー (90度扇形) */
+.char-pawn.marker-fan {
+  border-color: var(--neon-yellow);
+}
+
+.char-pawn.marker-fan::before {
+  content: '📐';
+  position: absolute;
+  top: -22px;
+  font-size: 1.1rem;
+  filter: drop-shadow(0 0 3px var(--neon-yellow));
+}
+
+.char-pawn.marker-fan::after {
+  content: '';
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  background: conic-gradient(from -45deg, rgba(255, 238, 0, 0.12) 90deg, transparent 90deg);
+  border-radius: 50%;
+  top: -51px;
+  left: -51px;
+  z-index: -1;
+  pointer-events: none;
+  transform: rotate(180deg); /* 散開方向に向けて回転（JSで動的に変更も可能。デフォルトは南向き） */
+}
+
+/* 3. 円マーカー (周囲に波紋) */
+.char-pawn.marker-circle {
+  border-color: var(--neon-purple);
+}
+
+.char-pawn.marker-circle::before {
+  content: '🔵';
+  position: absolute;
+  top: -22px;
+  font-size: 0.9rem;
+  filter: drop-shadow(0 0 3px var(--neon-purple));
+}
+
+.char-pawn.marker-circle::after {
+  content: '';
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  border: 1.5px solid var(--neon-purple);
+  border-radius: 50%;
+  top: -10px;
+  left: -10px;
+  pointer-events: none;
+  z-index: -1;
+  animation: circle-pulse 2s infinite linear;
+}
+
+@keyframes circle-pulse {
+  0% { transform: scale(0.8); opacity: 0.8; box-shadow: 0 0 2px var(--neon-purple); }
+  50% { opacity: 0.4; }
+  100% { transform: scale(1.6); opacity: 0; box-shadow: 0 0 10px var(--neon-purple); }
+}
+
+/* 3. オーバーレイのスタイル */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(5, 5, 10, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 10;
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.overlay-content {
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+}
+
+.overlay-content h2 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+
+.overlay-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+/* 特殊オーバーレイ枠線 */
+.border-fail { border-color: rgba(255, 0, 85, 0.3); box-shadow: 0 0 30px rgba(255, 0, 85, 0.2); }
+.border-clear { border-color: rgba(255, 215, 0, 0.3); box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); }
+
+.text-fail { color: var(--neon-red); }
+.text-clear { color: var(--neon-gold); }
+
+/* マーカー変化表示グリッド */
+.marker-change-display {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.marker-change-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 15px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.marker-change-card.highlight {
+  border-color: var(--neon-purple);
+  background: rgba(189, 0, 255, 0.05);
+}
+
+.marker-change-card .card-char {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.marker-change-card .card-marker-icon {
+  font-size: 1.8rem;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-change-card .card-marker-name {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* 終焉の記録表示 */
+.apocalypse-record-container {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.apocalypse-record-container span {
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+/* クリア実績 */
+.stats-container {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
