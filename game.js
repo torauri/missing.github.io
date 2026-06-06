@@ -549,19 +549,14 @@ function applyMarkerChanges() {
   const type = getPhaseType(currentPhase);
   let targets = [];
   
-  if (currentPhase === 10) {
-    // フェーズ10奇数：全員のマーカーが消滅
-    CHAR_NAMES.forEach(name => {
-      characters[name].marker = MARKER_NONE;
-    });
-    targets = CHAR_NAMES;
-  } 
-  else if (currentPhase === 11) {
-    // フェーズ11偶数：全員のマーカーが消滅
-    CHAR_NAMES.forEach(name => {
-      characters[name].marker = MARKER_NONE;
-    });
-    targets = CHAR_NAMES;
+  if (currentPhase === 10 || currentPhase === 11) {
+    // マーカー消滅フェーズ：指定グループに属する4人のマーカーを消去
+    if (targetGroup === "グループ1" || targetGroup === "グループ2") {
+      targets = CHAR_NAMES.filter(name => characters[name].group === targetGroup);
+      targets.forEach(name => {
+        characters[name].marker = MARKER_NONE;
+      });
+    }
   } 
   else if (targetGroup === "グループ1" || targetGroup === "グループ2") {
     // 指定グループに属する4人のキャラ名を取得

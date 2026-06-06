@@ -308,7 +308,7 @@ class AdjusterApp:
         for ph_id, ph in self.config_data.get("phases", {}).items():
             ph_num = int(ph_id)
             group = ph.get("change_target_group", "")
-            if ph_num in [1, 2, 4, 5, 7, 8]:
+            if ph_num in [1, 2, 4, 5, 7, 8, 10, 11]:
                 if group not in ["グループ1", "グループ2"]:
                     messagebox.showwarning("警告", f"フェーズ {ph_id} のマーカー変化対象グループが正しく設定されていません。\n保存する前に「グループ1」または「グループ2」を選択してください。")
                     return
@@ -390,12 +390,9 @@ class AdjusterApp:
         else:
             self.btn_add_widget.config(state=tk.NORMAL)
             self.btn_del_widget.config(state=tk.NORMAL)
-            
+            self.enable_change_targets_frame()
             if ph_num in [10, 11]:
-                self.disable_change_targets_frame()
                 self.phase_type_lbl.config(text=self.phase_type_lbl.cget("text") + " - マーカー消滅")
-            else:
-                self.enable_change_targets_frame()
                 
         self.selected_button_index = -1
         self.sync_button_list()
