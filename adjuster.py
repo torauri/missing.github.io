@@ -125,8 +125,8 @@ class AdjusterApp:
         ttk.Button(file_lf, text="設定を読込", command=self.load_config).pack(side=tk.LEFT, padx=5)
         ttk.Button(file_lf, text="設定を保存", command=self.save_config).pack(side=tk.LEFT, padx=5)
         
-        # 2. 全体位置設定（ボス、左右の円）
-        pos_lf = ttk.LabelFrame(self.scroll_content, text="基本要素の座標 (ボス & 円)", padding=10)
+        # 2. 全体位置設定（ボス、左右の塔）
+        pos_lf = ttk.LabelFrame(self.scroll_content, text="基本要素の座標 (ボス & 塔)", padding=10)
         pos_lf.pack(fill=tk.X, pady=5)
         
         # ボス
@@ -145,8 +145,8 @@ class AdjusterApp:
         self.boss_r_entry = ttk.Entry(pos_lf, textvariable=self.boss_r_var, width=6)
         self.boss_r_entry.grid(row=0, column=5, padx=5, pady=2)
         
-        # 左円
-        ttk.Label(pos_lf, text="左円 X:").grid(row=1, column=0, sticky=tk.W)
+        # 左塔
+        ttk.Label(pos_lf, text="左塔 X:").grid(row=1, column=0, sticky=tk.W)
         self.circle_l_x_var = tk.StringVar()
         self.circle_l_x_entry = ttk.Entry(pos_lf, textvariable=self.circle_l_x_var, width=6)
         self.circle_l_x_entry.grid(row=1, column=1, padx=5, pady=2)
@@ -161,8 +161,8 @@ class AdjusterApp:
         self.circle_l_r_entry = ttk.Entry(pos_lf, textvariable=self.circle_l_r_var, width=6)
         self.circle_l_r_entry.grid(row=1, column=5, padx=5, pady=2)
         
-        # 右円
-        ttk.Label(pos_lf, text="右円 X:").grid(row=2, column=0, sticky=tk.W)
+        # 右塔
+        ttk.Label(pos_lf, text="右塔 X:").grid(row=2, column=0, sticky=tk.W)
         self.circle_r_x_var = tk.StringVar()
         self.circle_r_x_entry = ttk.Entry(pos_lf, textvariable=self.circle_r_x_var, width=6)
         self.circle_r_x_entry.grid(row=2, column=1, padx=5, pady=2)
@@ -194,7 +194,7 @@ class AdjusterApp:
         self.phase_type_lbl.pack(side=tk.LEFT, padx=5)
         
         # 4. ボタン追加・編集
-        self.btn_lf = ttk.LabelFrame(self.scroll_content, text="回答ボタン設定", padding=10)
+        self.btn_lf = ttk.LabelFrame(self.scroll_content, text="回答ボタン設定 (X/Y座標は中央基準)", padding=10)
         self.btn_lf.pack(fill=tk.X, pady=5)
         
         # ボタン一覧リストボックス
@@ -226,12 +226,12 @@ class AdjusterApp:
         self.btn_label_entry = ttk.Entry(self.btn_detail_frame, textvariable=self.btn_label_var)
         self.btn_label_entry.grid(row=0, column=1, columnspan=3, sticky=tk.EW, pady=2)
         
-        ttk.Label(self.btn_detail_frame, text="X:").grid(row=1, column=0, sticky=tk.W)
+        ttk.Label(self.btn_detail_frame, text="中心 X:").grid(row=1, column=0, sticky=tk.W)
         self.btn_x_var = tk.StringVar()
         self.btn_x_entry = ttk.Entry(self.btn_detail_frame, textvariable=self.btn_x_var, width=6)
         self.btn_x_entry.grid(row=1, column=1, sticky=tk.W, pady=2)
         
-        ttk.Label(self.btn_detail_frame, text="Y:").grid(row=1, column=2, sticky=tk.W)
+        ttk.Label(self.btn_detail_frame, text="中心 Y:").grid(row=1, column=2, sticky=tk.W)
         self.btn_y_var = tk.StringVar()
         self.btn_y_entry = ttk.Entry(self.btn_detail_frame, textvariable=self.btn_y_var, width=6)
         self.btn_y_entry.grid(row=1, column=3, sticky=tk.W, pady=2)
@@ -390,6 +390,7 @@ class AdjusterApp:
         else:
             self.btn_add_widget.config(state=tk.NORMAL)
             self.btn_del_widget.config(state=tk.NORMAL)
+            
             self.enable_change_targets_frame()
             if ph_num in [10, 11]:
                 self.phase_type_lbl.config(text=self.phase_type_lbl.cget("text") + " - マーカー消滅")
@@ -450,11 +451,12 @@ class AdjusterApp:
         ph = self.config_data.setdefault("phases", {}).setdefault(self.current_phase, {})
         buttons = ph.setdefault("buttons", [])
         
+        # 新しいボタンを中心基準の座標で追加 (画面中央 512, 280)
         new_btn = {
             "id": f"btn_{self.current_phase}_{len(buttons)+1}",
             "label": f"ボタン {len(buttons)+1}",
-            "x": 462,
-            "y": 260,
+            "x": 512,
+            "y": 280,
             "w": 100,
             "h": 40,
             "condition": ""
@@ -546,14 +548,15 @@ class AdjusterApp:
         cl = self.config_data.get("circle_left", {"x": 350, "y": 380, "radius": 70})
         cr = self.config_data.get("circle_right", {"x": 674, "y": 380, "radius": 70})
         
-        self.draw_circle(cl["x"], cl["y"], cl["radius"], "#2a4d2a", "circle_left", "左円")
-        self.draw_circle(cr["x"], cr["y"], cr["radius"], "#2a2d4d", "circle_right", "右円")
+        self.draw_circle(cl["x"], cl["y"], cl["radius"], "#2a4d2a", "circle_left", "左塔")
+        self.draw_circle(cr["x"], cr["y"], cr["radius"], "#2a2d4d", "circle_right", "右塔")
         self.draw_circle(boss["x"], boss["y"], boss["radius"], "#4d2a2a", "boss", "BOSS")
         
         ph_num = int(self.current_phase)
         if ph_num in [3, 6, 9, 12]:
-            self.canvas.create_rectangle(boss["x"]-60, boss["y"]-80, boss["x"]+60, boss["y"]-40, fill="#333333", outline="#aaaaaa", width=1, dash=(2, 2))
-            self.canvas.create_text(boss["x"], boss["y"]-60, text="未来の終焉用 (自動配置)", fill="#888888", font=("MS Gothic", 8))
+            # 自動配置ボタンも中央基準で描画
+            self.canvas.create_rectangle(boss["x"]-60, boss["y"]-105, boss["x"]+60, boss["y"]-65, fill="#333333", outline="#aaaaaa", width=1, dash=(2, 2))
+            self.canvas.create_text(boss["x"], boss["y"]-85, text="未来の終焉用 (自動配置)", fill="#888888", font=("MS Gothic", 8))
             
             mid_x = (cl["x"] + cr["x"]) // 2
             mid_y = (cl["y"] + cr["y"]) // 2
@@ -564,7 +567,10 @@ class AdjusterApp:
             buttons = ph.get("buttons", [])
             
             for idx, btn in enumerate(buttons):
-                bx, by, bw, bh = btn["x"], btn["y"], btn["w"], btn["h"]
+                bw, bh = btn["w"], btn["h"]
+                # 中央基準から左上角を算出
+                bx = btn["x"] - bw // 2
+                by = btn["y"] - bh // 2
                 
                 is_selected = (idx == self.selected_button_index)
                 fill_color = "#3a4f66" if is_selected else "#253344"
@@ -572,10 +578,10 @@ class AdjusterApp:
                 width = 2 if is_selected else 1
                 
                 self.canvas.create_rectangle(bx, by, bx+bw, by+bh, fill=fill_color, outline=outline_color, width=width, tags=f"btn_{idx}")
-                self.canvas.create_text(bx + bw//2, by + bh//2, text=btn["label"], fill="#ffffff", tags=f"btn_{idx}", font=("MS Gothic", 9, "bold"))
+                self.canvas.create_text(btn["x"], btn["y"], text=btn["label"], fill="#ffffff", tags=f"btn_{idx}", font=("MS Gothic", 9, "bold"))
                 
                 if is_selected:
-                    hx, hy = bx + bw, by + bh
+                    hx, hy = btn["x"] + bw // 2, btn["y"] + bh // 2
                     self.canvas.create_rectangle(hx-4, hy-4, hx+4, hy+4, fill="#00ffff", outline="#ffffff", tags="resize_handle")
 
     def draw_circle(self, x, y, r, fill, tag, label):
@@ -655,9 +661,19 @@ class AdjusterApp:
             buttons = ph.get("buttons", [])
             if 0 <= self.selected_button_index < len(buttons):
                 btn = buttons[self.selected_button_index]
-                btn["w"] = max(10, btn["w"] + dx)
-                btn["h"] = max(10, btn["h"] + dy)
+                # 左上角を固定して右下のみをリサイズ
+                new_w = max(10, btn["w"] + dx)
+                new_h = max(10, btn["h"] + dy)
+                actual_dw = new_w - btn["w"]
+                actual_dh = new_h - btn["h"]
                 
+                btn["w"] = new_w
+                btn["h"] = new_h
+                btn["x"] += actual_dw // 2
+                btn["y"] += actual_dh // 2
+                
+                self.btn_x_var.set(str(btn["x"]))
+                self.btn_y_var.set(str(btn["y"]))
                 self.btn_w_var.set(str(btn["w"]))
                 self.btn_h_var.set(str(btn["h"]))
                 self.draw_canvas()
