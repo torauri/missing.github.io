@@ -308,7 +308,10 @@ body {
   background-color: var(--bg-secondary);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1);
   overflow: hidden;
   box-shadow: 0 20px 50px rgba(0,0,0,0.6);
 }
@@ -732,6 +735,38 @@ body {
 .stat-label {
   font-size: 0.8rem;
   color: var(--text-secondary);
+}
+
+/* 縦画面警告オーバーレイ */
+#rotate-device-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-primary);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(189, 0, 255, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
+  z-index: 9999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+#rotate-device-overlay .glass-panel {
+  max-width: 400px;
+  border-color: rgba(0, 242, 254, 0.2);
+  box-shadow: 0 0 30px rgba(0, 242, 254, 0.1);
+}
+
+@media screen and (max-width: 900px) and (orientation: portrait) {
+  #rotate-device-overlay {
+    display: flex;
+  }
 }
 
 .stat-value {

@@ -92,8 +92,8 @@ function resizeGameField() {
   const scaleY = containerHeight / baseHeight;
   const scale = Math.min(scaleX, scaleY, 1.3); // 最大1.3倍まで拡大、基本はフィット
   
-  field.style.transform = `scale(${scale})`;
-  field.style.transformOrigin = "center center";
+  // 常に中央を基準にしてスケーリングを適用
+  field.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
 // キャラクター選択画面の構成
