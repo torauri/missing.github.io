@@ -271,9 +271,9 @@ function startPhase(phaseNum) {
     phaseTypeBadge.style.color = "var(--neon-purple)";
     phaseMsg.textContent = "直前の予兆に基づき、ボスの上または下へ誘導せよ";
     
-    // 直近の終焉テキストを表示
-    apocEl.textContent = lastApocalypseText;
-    apocEl.classList.add(lastApocalypseText === "未来の終焉" ? "future" : "past");
+    // 答えとなるテロップは出さない
+    apocEl.textContent = "";
+    apocEl.className = "apocalypse-text";
     
     renderPastFutureButtons();
   }
@@ -311,12 +311,10 @@ function renderBaseObjects() {
   circleREl.style.height = `${cr.radius * 2}px`;
 }
 
-// キャラクターをボスの上の整列位置に配置する
+// キャラクターを画面左上の整列位置に配置する（全フェーズ共通）
 function resetCharacterPositions() {
   const container = document.getElementById("characters-container");
   container.innerHTML = "";
-  
-  const b = config.boss;
   
   // 上段（1行目）: MT, ST, D1, D2
   // 下段（2行目）: H1, H2, D3, D4
@@ -331,13 +329,11 @@ function resetCharacterPositions() {
     "D4": { row: 2, col: 3 }
   };
 
-  const colOffset = [-90, -30, 30, 90]; // 横方向の間隔 (60px間隔で中央揃え)
-  const rowOffset = [-130, -75];         // 縦方向の間隔 (ボスからのYオフセット)
-
   CHAR_NAMES.forEach(name => {
     const pos = rows[name];
-    const x = b.x + colOffset[pos.col];
-    const y = b.y + rowOffset[pos.row - 1];
+    // 全フェーズで画面左上に並べて配置 (X=60〜240, Y=45〜95)
+    const x = 60 + pos.col * 60;
+    const y = 45 + (pos.row - 1) * 50;
     
     characters[name].x = x;
     characters[name].y = y;
