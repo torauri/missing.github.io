@@ -53,6 +53,30 @@ def validate_condition(condition_str):
     return True, ""
 
 
+def validate_priority(priority_str):
+    if not priority_str or not priority_str.strip():
+        return True, ""
+    
+    parts = [p.strip() for p in priority_str.split(">")]
+    valid_chars = {"MT", "ST", "H1", "H2", "D1", "D2", "D3", "D4"}
+    
+    parts_set = set(parts)
+    if len(parts) != len(parts_set):
+        return False, "優先度に重複したキャラクター名が含まれています。"
+        
+    for part in parts:
+        if not part:
+            return False, "優先度に空の要素が含まれています (「>」が連続しているなど)。"
+        if part not in valid_chars:
+            return False, f"無効なキャラクター名が含まれています: '{part}'"
+            
+    if parts_set != valid_chars:
+        missing = valid_chars - parts_set
+        return False, f"すべてのキャラクター（8名）を含める必要があります。不足: {', '.join(sorted(list(missing)))}"
+        
+    return True, ""
+
+
 class AdjusterApp:
     def __init__(self, root):
         self.root = root
@@ -184,14 +208,29 @@ class AdjusterApp:
         phase_lf = ttk.LabelFrame(self.scroll_content, text="フェーズ管理", padding=10)
         phase_lf.pack(fill=tk.X, pady=5)
         
-        ttk.Label(phase_lf, text="編集フェーズ:").pack(side=tk.LEFT)
-        self.phase_combobox = ttk.Combobox(phase_lf, values=[str(i) for i in range(1, 13)], width=5, state="readonly")
+        # 上段：選択と種別
+        phase_sel_frame = ttk.Frame(phase_lf)
+        phase_sel_frame.pack(fill=tk.X, pady=2)
+        
+        ttk.Label(phase_sel_frame, text="編集フェーズ:").pack(side=tk.LEFT)
+        self.phase_combobox = ttk.Combobox(phase_sel_frame, values=[str(i) for i in range(1, 13)], width=5, state="readonly")
         self.phase_combobox.set("1")
         self.phase_combobox.pack(side=tk.LEFT, padx=5)
         self.phase_combobox.bind("<<ComboboxSelected>>", self.on_phase_change)
         
-        self.phase_type_lbl = ttk.Label(phase_lf, text="(奇数回塔踏みフェーズ)")
+        self.phase_type_lbl = ttk.Label(phase_sel_frame, text="(奇数回塔踏みフェーズ)")
         self.phase_type_lbl.pack(side=tk.LEFT, padx=5)
+        
+        # 下段：優先度設定用サブフレーム
+        priority_frame = ttk.Frame(phase_lf)
+        priority_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(priority_frame, text="フェーズ優先度:").pack(side=tk.LEFT)
+        self.phase_priority_var = tk.StringVar()
+        self.phase_priority_entry = ttk.Entry(priority_frame, textvariable=self.phase_priority_var)
+        self.phase_priority_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.phase_priority_entry.bind("<FocusOut>", lambda e: self.apply_phase_priority())
+        self.phase_priority_entry.bind("<Return>", lambda e: self.apply_phase_priority())
         
         # 4. ボタン追加・編集
         self.btn_lf = ttk.LabelFrame(self.scroll_content, text="回答ボタン設定 (X/Y座標は中央基準)", padding=10)
@@ -251,8 +290,13 @@ class AdjusterApp:
         self.btn_cond_entry = ttk.Entry(self.btn_detail_frame, textvariable=self.btn_cond_var)
         self.btn_cond_entry.grid(row=3, column=1, columnspan=3, sticky=tk.EW, pady=2)
         
+        ttk.Label(self.btn_detail_frame, text="優先度判定:").grid(row=4, column=0, sticky=tk.W)
+        self.btn_priority_type_var = tk.StringVar(value="設定なし")
+        self.btn_priority_type_combobox = ttk.Combobox(self.btn_detail_frame, textvariable=self.btn_priority_type_var, values=["設定なし", "大きい方", "小さい方"], state="readonly")
+        self.btn_priority_type_combobox.grid(row=4, column=1, columnspan=3, sticky=tk.EW, pady=2)
+        
         cond_btn_frame = ttk.Frame(self.btn_detail_frame)
-        cond_btn_frame.grid(row=4, column=1, columnspan=3, sticky=tk.EW, pady=2)
+        cond_btn_frame.grid(row=5, column=1, columnspan=3, sticky=tk.EW, pady=2)
         
         ttk.Button(cond_btn_frame, text="条件チェック", command=self.check_condition_syntax).pack(side=tk.LEFT, padx=2)
         ttk.Button(cond_btn_frame, text="値を適用", command=self.apply_button_details).pack(side=tk.LEFT, padx=2)
@@ -263,7 +307,10 @@ class AdjusterApp:
                    "・グループ: グループ1, グループ2\n" \
                    "・マーカー: 頭割り, 扇, 円, なし\n" \
                    "・演算子: and, or, not, 括弧()\n" \
-                   "例: (グループ1 and MT) or (グループ2 and (H1 or ST))"
+                   "例: (グループ1 and MT) or (グループ2 and (H1 or ST))\n" \
+                   "【優先度設定】\n" \
+                   "・フェーズ優先度: 全8キャラを「>」で繋ぎます (例: H2 > H1 > ST > MT > D1 > D2 > D3 > D4)\n" \
+                   "・優先度判定: 「大きい方」（左側優先）または「小さい方」（右側優先）を指定します"
         help_lbl = ttk.Label(self.btn_lf, text=help_txt, justify=tk.LEFT, font=("MS Gothic", 8), foreground="#666666")
         help_lbl.pack(fill=tk.X, pady=5)
         
@@ -289,7 +336,7 @@ class AdjusterApp:
                 "boss": { "x": 512, "y": 180, "radius": 50 },
                 "circle_left": { "x": 350, "y": 380, "radius": 70 },
                 "circle_right": { "x": 674, "y": 380, "radius": 70 },
-                "phases": {str(i): {"buttons": [], "change_target_group": ""} for i in range(1, 13)}
+                "phases": {str(i): {"buttons": [], "change_target_group": "", "priority": ""} for i in range(1, 13)}
             }
             self.save_config(silent=True)
         else:
@@ -387,9 +434,11 @@ class AdjusterApp:
             self.btn_del_widget.config(state=tk.DISABLED)
             self.disable_button_detail_frame()
             self.disable_change_targets_frame()
+            self.phase_priority_entry.config(state=tk.DISABLED)
         else:
             self.btn_add_widget.config(state=tk.NORMAL)
             self.btn_del_widget.config(state=tk.NORMAL)
+            self.phase_priority_entry.config(state=tk.NORMAL)
             
             self.enable_change_targets_frame()
             if ph_num in [10, 11]:
@@ -398,6 +447,7 @@ class AdjusterApp:
         self.selected_button_index = -1
         self.sync_button_list()
         self.sync_change_group()
+        self.sync_phase_priority()
         self.draw_canvas()
 
     def sync_button_list(self):
@@ -406,7 +456,13 @@ class AdjusterApp:
         buttons = ph.get("buttons", [])
         
         for idx, btn in enumerate(buttons):
-            self.btn_listbox.insert(tk.END, f"{idx+1}: {btn.get('label')} ({btn.get('condition')})")
+            cond_str = btn.get('condition')
+            ptype_str = btn.get('priority_type', '')
+            if ptype_str:
+                ptype_jp = "大" if ptype_str == "larger" else "小"
+                self.btn_listbox.insert(tk.END, f"{idx+1}: {btn.get('label')} ({cond_str}) [{ptype_jp}]")
+            else:
+                self.btn_listbox.insert(tk.END, f"{idx+1}: {btn.get('label')} ({cond_str})")
             
         self.disable_button_detail_frame()
 
@@ -418,6 +474,21 @@ class AdjusterApp:
     def on_target_group_change(self):
         ph = self.config_data.setdefault("phases", {}).setdefault(self.current_phase, {})
         ph["change_target_group"] = self.target_group_var.get()
+
+    def sync_phase_priority(self):
+        ph = self.config_data.get("phases", {}).get(self.current_phase, {})
+        priority = ph.get("priority", "")
+        self.phase_priority_var.set(priority)
+
+    def apply_phase_priority(self):
+        priority = self.phase_priority_var.get().strip()
+        if priority:
+            is_valid, err_msg = validate_priority(priority)
+            if not is_valid:
+                messagebox.showerror("優先度エラー", f"優先度の記述が正しくありません:\n{err_msg}")
+                return
+        ph = self.config_data.setdefault("phases", {}).setdefault(self.current_phase, {})
+        ph["priority"] = priority
 
     def disable_change_targets_frame(self):
         self.target_group_var.set("")
@@ -437,14 +508,18 @@ class AdjusterApp:
         self.btn_w_var.set("")
         self.btn_h_var.set("")
         self.btn_cond_var.set("")
+        self.btn_priority_type_var.set("設定なし")
         for child in self.btn_detail_frame.winfo_children():
-            if isinstance(child, (ttk.Entry, ttk.Button)):
+            if isinstance(child, (ttk.Entry, ttk.Button, ttk.Combobox)):
                 child.config(state=tk.DISABLED)
 
     def enable_button_detail_frame(self):
         for child in self.btn_detail_frame.winfo_children():
-            if isinstance(child, (ttk.Entry, ttk.Button)):
-                child.config(state=tk.NORMAL)
+            if isinstance(child, (ttk.Entry, ttk.Button, ttk.Combobox)):
+                if isinstance(child, ttk.Combobox):
+                    child.config(state="readonly")
+                else:
+                    child.config(state=tk.NORMAL)
 
     # ボタン管理
     def add_button(self):
@@ -459,7 +534,8 @@ class AdjusterApp:
             "y": 280,
             "w": 100,
             "h": 40,
-            "condition": ""
+            "condition": "",
+            "priority_type": ""
         }
         buttons.append(new_btn)
         
@@ -500,6 +576,15 @@ class AdjusterApp:
             self.btn_w_var.set(str(btn.get("w", 100)))
             self.btn_h_var.set(str(btn.get("h", 40)))
             self.btn_cond_var.set(btn.get("condition", ""))
+            
+            ptype = btn.get("priority_type", "")
+            if ptype == "larger":
+                self.btn_priority_type_var.set("大きい方")
+            elif ptype == "smaller":
+                self.btn_priority_type_var.set("小さい方")
+            else:
+                self.btn_priority_type_var.set("設定なし")
+                
             self.draw_canvas()
 
     def apply_button_details(self):
@@ -516,6 +601,18 @@ class AdjusterApp:
                 if not messagebox.askyesno("構文警告", f"条件式に問題があります:\n{err_msg}\n\nこのまま適用しますか？"):
                     return
             
+            priority_type_jp = self.btn_priority_type_var.get()
+            priority_type = ""
+            if priority_type_jp == "大きい方":
+                priority_type = "larger"
+            elif priority_type_jp == "小さい方":
+                priority_type = "smaller"
+                
+            # If priority type is set, check if phase has a priority
+            phase_priority = ph.get("priority", "")
+            if priority_type and not phase_priority:
+                messagebox.showwarning("警告", "優先度判定が設定されていますが、フェーズ全体の優先度が設定されていません。先にフェーズ管理の「フェーズ優先度」を設定してください。")
+
             try:
                 buttons[self.selected_button_index] = {
                     "id": buttons[self.selected_button_index]["id"],
@@ -524,7 +621,8 @@ class AdjusterApp:
                     "y": int(self.btn_y_var.get()),
                     "w": int(self.btn_w_var.get()),
                     "h": int(self.btn_h_var.get()),
-                    "condition": cond
+                    "condition": cond,
+                    "priority_type": priority_type
                 }
                 self.sync_button_list()
                 self.btn_listbox.select_set(self.selected_button_index)
@@ -535,10 +633,19 @@ class AdjusterApp:
     def check_condition_syntax(self):
         cond = self.btn_cond_var.get()
         is_valid, err_msg = validate_condition(cond)
-        if is_valid:
-            messagebox.showinfo("構文チェック", "条件式の構文は正しいです！")
-        else:
+        if not is_valid:
             messagebox.showerror("構文エラー", f"条件式に問題があります:\n{err_msg}")
+            return
+            
+        ph = self.config_data.get("phases", {}).get(self.current_phase, {})
+        priority = ph.get("priority", "")
+        if priority:
+            is_p_valid, p_err_msg = validate_priority(priority)
+            if not is_p_valid:
+                messagebox.showerror("構文エラー", f"フェーズの優先度に問題があります:\n{p_err_msg}")
+                return
+            
+        messagebox.showinfo("構文チェック", "条件式および優先度の構文は正しいです！")
 
     # キャンバス描画
     def draw_canvas(self):

@@ -386,7 +386,7 @@ function renderActionButtons() {
     
     el.addEventListener("click", () => {
       if (isAnimating) return;
-      handleAnswerSelection(btn.x, btn.y, btn.condition);
+      handleAnswerSelection(btn.x, btn.y, btn.condition, phData.priority, btn.priority_type);
     });
     
     container.appendChild(el);
@@ -441,7 +441,7 @@ function renderPastFutureButtons() {
 }
 
 // プレイヤーが立ち位置を選択したときの処理
-function handleAnswerSelection(targetX, targetY, conditionStr) {
+function handleAnswerSelection(targetX, targetY, conditionStr, priority = "", priorityType = "") {
   isAnimating = true;
   
   // ボタン入力を一時無効化
@@ -456,8 +456,7 @@ function handleAnswerSelection(targetX, targetY, conditionStr) {
   
   // 判定処理（移動アニメーション完了後）
   setTimeout(() => {
-    const playerInfo = characters[playerChar];
-    const isCorrect = evaluateCondition(conditionStr, playerChar, playerInfo.group, playerInfo.marker);
+    const isCorrect = evaluateButtonCorrectness(playerChar, conditionStr, priority, priorityType);
     
     if (isCorrect) {
       handleSuccess();
@@ -465,6 +464,52 @@ function handleAnswerSelection(targetX, targetY, conditionStr) {
       handleFailure();
     }
   }, 650);
+}
+
+// 優先度を含めたボタンの正答判定
+function evaluateButtonCorrectness(playerChar, conditionStr, priority, priorityType) {
+  if (!priorityType || priorityType === "") {
+    // 優先度判定が設定されていない場合は、従来どおり個人が条件を満たしているかで判定
+    const playerInfo = characters[playerChar];
+    return evaluateCondition(conditionStr, playerChar, playerInfo.group, playerInfo.marker);
+  }
+
+  // 優先度判定が設定されている場合
+  // 1. 全8キャラのうち、条件を満たす者をすべて見つける
+  const matchingChars = [];
+  for (let charName of CHAR_NAMES) {
+    const charInfo = characters[charName];
+    if (evaluateCondition(conditionStr, charName, charInfo.group, charInfo.marker)) {
+      matchingChars.push(charName);
+    }
+  }
+
+  // プレイヤー自身が条件を満たしていなければ、正答になり得ない
+  if (!matchingChars.includes(playerChar)) {
+    return false;
+  }
+
+  // 2. 優先度リストの解析 (例: "H2 > H1 > ST > MT > D1 > D2 > D3 > D4")
+  const priorityList = priority ? priority.split(">").map(s => s.trim()) : [];
+
+  // 3. 条件を満たすキャラを優先度順にソート (最も優先度が高いものが先頭に来る)
+  matchingChars.sort((a, b) => {
+    let idxA = priorityList.indexOf(a);
+    let idxB = priorityList.indexOf(b);
+    if (idxA === -1) idxA = 999;
+    if (idxB === -1) idxB = 999;
+    return idxA - idxB;
+  });
+
+  // 4. 大きい方 (より左側、インデックス最小) / 小さい方 (より右側、インデックス最大) を取得して比較
+  let targetChar = "";
+  if (priorityType === "larger") {
+    targetChar = matchingChars[0];
+  } else if (priorityType === "smaller") {
+    targetChar = matchingChars[matchingChars.length - 1];
+  }
+
+  return playerChar === targetChar;
 }
 
 // 条件式評価関数
