@@ -26,6 +26,14 @@
           </div>
         </div>
         
+        <div class="mode-selection">
+          <label class="checkbox-container">
+            <input type="checkbox" id="hide-markers-mode-chk">
+            <span class="checkmark"></span>
+            フェーズ1の後はキャラクターのマークを表示しない
+          </label>
+        </div>
+        
         <button id="start-game-btn" class="neon-btn primary disabled" disabled>ミッシング詠唱開始</button>
       </div>
     </section>
@@ -109,6 +117,7 @@
       <div class="glass-panel overlay-content border-fail">
         <h2 class="text-fail text-neon-red glitch-title" data-text="YOU'RE MISSING">YOU'RE MISSING</h2>
         <p class="overlay-desc">正解の立ち位置ではありませんでした。<br>あなたのミスで固定はワイプしました。</p>
+        <p class="fail-cause" id="fail-cause-text" style="color: var(--neon-orange); font-size: 1.1rem; font-weight: 800; margin-bottom: 25px; text-shadow: 0 0 8px rgba(255,119,0,0.5);"></p>
         <button id="retry-game-btn" class="neon-btn danger">リトライ</button>
       </div>
     </div>

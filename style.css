@@ -743,3 +743,79 @@ body {
   font-size: 1.6rem;
   font-weight: 800;
 }
+
+/* チェックボックスのカスタムスタイル */
+.mode-selection {
+  margin-top: 10px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 35px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  user-select: none;
+  transition: color 0.3s ease;
+}
+
+.checkbox-container:hover {
+  color: var(--text-primary);
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  height: 20px;
+  width: 20px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background-color: rgba(0, 242, 254, 0.1);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.checkbox-container .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 4px;
+  height: 9px;
+  border: solid var(--neon-blue);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}

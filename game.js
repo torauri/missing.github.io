@@ -6,6 +6,7 @@ let currentPhase = 1;
 let lastApocalypseText = ""; // 直近の偶数フェーズで出たテキスト ("過去の終焉" または "未来の終焉")
 let startTime = 0;
 let isAnimating = false;
+let hideMarkersAfterPhase1 = false;
 
 // 固定ペア定義（グループ決定用）
 const PAIRS = [
@@ -151,6 +152,7 @@ function startGame() {
   startTime = Date.now();
   currentPhase = 1;
   lastApocalypseText = "";
+  hideMarkersAfterPhase1 = document.getElementById("hide-markers-mode-chk").checked;
   
   // 1. 初期マーカーの付与
   assignInitialMarkers();
@@ -356,9 +358,12 @@ function resetCharacterPositions() {
     
     // マーカーに応じたクラス追加
     const m = characters[name].marker;
-    if (m === MARKER_SHARE) pawn.classList.add("marker-share");
-    else if (m === MARKER_FAN) pawn.classList.add("marker-fan");
-    else if (m === MARKER_CIRCLE) pawn.classList.add("marker-circle");
+    const shouldShowMarker = !hideMarkersAfterPhase1 || currentPhase === 1;
+    if (shouldShowMarker) {
+      if (m === MARKER_SHARE) pawn.classList.add("marker-share");
+      else if (m === MARKER_FAN) pawn.classList.add("marker-fan");
+      else if (m === MARKER_CIRCLE) pawn.classList.add("marker-circle");
+    }
     
     container.appendChild(pawn);
   });
@@ -461,7 +466,15 @@ function handleAnswerSelection(targetX, targetY, conditionStr, priority = "", pr
     if (isCorrect) {
       handleSuccess();
     } else {
-      handleFailure();
+      let failReason = "立ち位置が違います";
+      if (priorityType && priorityType !== "") {
+        const playerInfo = characters[playerChar];
+        const satisfiesCondition = evaluateCondition(conditionStr, playerChar, playerInfo.group, playerInfo.marker);
+        if (satisfiesCondition) {
+          failReason = "優先度が違います";
+        }
+      }
+      handleFailure(failReason);
     }
   }, 650);
 }
@@ -689,7 +702,8 @@ function proceedToNextPhase() {
 }
 
 // 不正解時の処理
-function handleFailure() {
+function handleFailure(reason = "立ち位置が違います") {
+  document.getElementById("fail-cause-text").textContent = `要因: ${reason}`;
   document.getElementById("game-over-overlay").classList.add("active");
 }
 
