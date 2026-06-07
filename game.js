@@ -7,6 +7,7 @@ let lastApocalypseText = ""; // 直近の偶数フェーズで出たテキスト
 let startTime = 0;
 let isAnimating = false;
 let hideMarkersAfterPhase1 = false;
+let phase12Step = 1;
 
 // 固定ペア定義（グループ決定用）
 const PAIRS = [
@@ -228,6 +229,9 @@ function assignInitialMarkers() {
 function startPhase(phaseNum) {
   currentPhase = phaseNum;
   isAnimating = false;
+  if (phaseNum === 12) {
+    phase12Step = 1;
+  }
   
   // フェーズ開始時にスケーリングを再計算
   resizeGameField();
@@ -414,6 +418,69 @@ function renderPastFutureButtons() {
   // 2. ボスの下（2つの円の間）
   const bottomX = Math.round((cl.x + cr.x) / 2);
   const bottomY = Math.round((cl.y + cr.y) / 2);
+  
+  if (currentPhase === 12 && phase12Step === 1) {
+    // フェーズ12ステップ1: 「Aマーカー集合」ボタン
+    const step1Btn = document.createElement("button");
+    step1Btn.className = "action-btn past-future-btn";
+    step1Btn.style.left = `${topX}px`;
+    step1Btn.style.top = `${topY}px`;
+    step1Btn.textContent = "Aマーカー集合";
+    step1Btn.addEventListener("click", () => {
+      if (isAnimating) return;
+      isAnimating = true;
+      
+      // ボタン入力を一時無効化
+      document.querySelectorAll(".action-btn").forEach(btn => {
+        btn.style.pointerEvents = "none";
+      });
+      
+      // プレイヤーのキャラを移動
+      const pawn = document.getElementById(`char-pawn-${playerChar}`);
+      pawn.style.left = `${topX}px`;
+      pawn.style.top = `${topY}px`;
+      
+      setTimeout(() => {
+        isAnimating = false;
+        phase12Step = 2;
+        renderPastFutureButtons();
+      }, 650);
+    });
+    container.appendChild(step1Btn);
+    return;
+  }
+  
+  if (currentPhase === 12 && phase12Step === 2) {
+    // フェーズ12ステップ2: 「過去の終焉を避ける」 (上) & 「未来の終焉を避ける」 (下)
+    
+    // 上ボタン
+    const topBtn = document.createElement("button");
+    topBtn.className = "action-btn past-future-btn";
+    topBtn.style.left = `${topX}px`;
+    topBtn.style.top = `${topY}px`;
+    topBtn.textContent = "過去の終焉を避ける";
+    topBtn.addEventListener("click", () => {
+      if (isAnimating) return;
+      const isCorrect = (lastApocalypseText === "過去 of 終焉" || lastApocalypseText === "過去の終焉");
+      handleAnswerSelection(topX, topY, isCorrect ? "true" : "false");
+    });
+    
+    // 下ボタン
+    const bottomBtn = document.createElement("button");
+    bottomBtn.className = "action-btn past-future-btn";
+    bottomBtn.style.left = `${bottomX}px`;
+    bottomBtn.style.top = `${bottomY}px`;
+    bottomBtn.textContent = "未来の終焉を避ける";
+    bottomBtn.addEventListener("click", () => {
+      if (isAnimating) return;
+      const isCorrect = (lastApocalypseText === "未来 of 終焉" || lastApocalypseText === "未来の終焉");
+      handleAnswerSelection(bottomX, bottomY, isCorrect ? "true" : "false");
+    });
+    
+    container.appendChild(topBtn);
+    container.appendChild(bottomBtn);
+    return;
+  }
   
   // 上ボタン
   const topBtn = document.createElement("button");
