@@ -174,9 +174,9 @@ function resizeGameField() {
   const joystickContainer = document.getElementById("joystick-container");
   if (joystickContainer) {
     // 回転・通常に関わらず、常にローカルの「左下」に配置する（親要素が回転しているため、これで物理的にも左下になる）
-    joystickContainer.style.left = "30px";
+    joystickContainer.style.left = "15px";
     joystickContainer.style.right = "auto";
-    joystickContainer.style.bottom = "30px";
+    joystickContainer.style.bottom = "15px";
     joystickContainer.style.top = "auto";
   }
 }
@@ -324,28 +324,92 @@ function setupEventListeners() {
   setupJoystickEvents();
 }
 
-function setupJoystickEvents() {
+function resetJoystickPosition() {
+  const joystickContainer = document.getElementById("joystick-container");
   const joystickBase = document.getElementById("joystick-base");
   const joystickHandle = document.getElementById("joystick-handle");
-  if (!joystickBase || !joystickHandle) return;
+  if (!joystickContainer || !joystickBase || !joystickHandle) return;
+
+  const containerWidth = joystickContainer.offsetWidth;
+  const containerHeight = joystickContainer.offsetHeight;
+  const baseWidth = joystickBase.offsetWidth;
+  const baseHeight = joystickBase.offsetHeight;
+
+  const cW = containerWidth || (isCanvasRotated ? 180 : 220);
+  const cH = containerHeight || (isCanvasRotated ? 180 : 220);
+  const bW = baseWidth || (isCanvasRotated ? 80 : 100);
+  const bH = baseHeight || (isCanvasRotated ? 80 : 100);
+
+  const defaultLeft = (cW - bW) / 2;
+  const defaultTop = (cH - bH) / 2;
+
+  joystickBase.style.transition = "none";
+  joystickBase.style.left = `${defaultLeft}px`;
+  joystickBase.style.top = `${defaultTop}px`;
+  joystickHandle.style.transform = "translate(0px, 0px)";
+  joystickInput.x = 0;
+  joystickInput.y = 0;
+  joystickActive = false;
+}
+
+function setupJoystickEvents() {
+  const joystickContainer = document.getElementById("joystick-container");
+  const joystickBase = document.getElementById("joystick-base");
+  const joystickHandle = document.getElementById("joystick-handle");
+  if (!joystickContainer || !joystickBase || !joystickHandle) return;
 
   function handleTouchStart(e) {
     if (!isGameRunning || controlType !== "joystick") return;
     joystickActive = true;
     
-    // スティックスケーリングを考慮した中心座標を取得
-    const rect = joystickBase.getBoundingClientRect();
+    e.stopPropagation();
+
+    const touch = e.touches[0];
+    const clientX = touch.clientX;
+    const clientY = touch.clientY;
+
+    const rect = joystickContainer.getBoundingClientRect();
+    const u = (clientX - rect.left) / rect.width;
+    const v = (clientY - rect.top) / rect.height;
+
+    const containerWidth = joystickContainer.offsetWidth || (isCanvasRotated ? 180 : 220);
+    const containerHeight = joystickContainer.offsetHeight || (isCanvasRotated ? 180 : 220);
+    const baseWidth = joystickBase.offsetWidth || (isCanvasRotated ? 80 : 100);
+    const baseHeight = joystickBase.offsetHeight || (isCanvasRotated ? 80 : 100);
+
+    let localX, localY;
+    if (isCanvasRotated) {
+      localX = v * containerWidth;
+      localY = (1 - u) * containerHeight;
+    } else {
+      localX = u * containerWidth;
+      localY = v * containerHeight;
+    }
+
+    const minX = baseWidth / 2;
+    const maxX = containerWidth - baseWidth / 2;
+    const minY = baseHeight / 2;
+    const maxY = containerHeight - baseHeight / 2;
+
+    localX = Math.max(minX, Math.min(localX, maxX));
+    localY = Math.max(minY, Math.min(localY, maxY));
+
+    joystickBase.style.transition = "none";
+    joystickBase.style.left = `${localX - baseWidth / 2}px`;
+    joystickBase.style.top = `${localY - baseHeight / 2}px`;
+
     joystickStartPos = {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2
+      x: clientX,
+      y: clientY
     };
-    
+
     handleTouchMove(e);
   }
 
   function handleTouchMove(e) {
     if (!joystickActive) return;
-    e.preventDefault(); // スマホのスクロールを抑制
+    e.preventDefault();
+    e.stopPropagation();
 
     const touch = e.touches[0];
     const clientX = touch.clientX;
@@ -355,42 +419,59 @@ function setupJoystickEvents() {
     let deltaY = clientY - joystickStartPos.y;
 
     if (isCanvasRotated) {
-      // 90度回転している場合、タッチの移動ベクトルを物理的な方向に変換する
       const tempX = deltaX;
       deltaX = deltaY;      // 物理的な右方向 (X) ＝ デバイスの下方向 (clientYの差分)
       deltaY = -tempX;     // 物理的な下方向 (Y) ＝ デバイスの左方向 (-clientXの差分)
     }
 
-    let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const rect = joystickContainer.getBoundingClientRect();
+    const containerWidth = joystickContainer.offsetWidth || (isCanvasRotated ? 180 : 220);
+    const currentScale = rect.width / containerWidth;
 
-    // 最大ドラッグ距離
-    const maxDistance = 45;
+    let deltaX_css = deltaX / (currentScale || 1);
+    let deltaY_css = deltaY / (currentScale || 1);
+
+    let distance = Math.sqrt(deltaX_css * deltaX_css + deltaY_css * deltaY_css);
+    const maxDistance = 40; // つまみの最大移動距離（CSSピクセル）
 
     if (distance > maxDistance) {
-      deltaX = (deltaX / distance) * maxDistance;
-      deltaY = (deltaY / distance) * maxDistance;
+      deltaX_css = (deltaX_css / distance) * maxDistance;
+      deltaY_css = (deltaY_css / distance) * maxDistance;
       distance = maxDistance;
     }
 
-    // つまみの移動
-    joystickHandle.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+    joystickHandle.style.transform = `translate(${deltaX_css}px, ${deltaY_css}px)`;
 
-    // 入力ベクトルの計算 (-1.0 ~ 1.0)
-    joystickInput.x = deltaX / maxDistance;
-    joystickInput.y = deltaY / maxDistance;
+    joystickInput.x = deltaX_css / maxDistance;
+    joystickInput.y = deltaY_css / maxDistance;
   }
 
-  function handleTouchEnd() {
+  function handleTouchEnd(e) {
+    if (!joystickActive) return;
     joystickActive = false;
+    if (e) e.stopPropagation();
+
+    const containerWidth = joystickContainer.offsetWidth || (isCanvasRotated ? 180 : 220);
+    const containerHeight = joystickContainer.offsetHeight || (isCanvasRotated ? 180 : 220);
+    const baseWidth = joystickBase.offsetWidth || (isCanvasRotated ? 80 : 100);
+    const baseHeight = joystickBase.offsetHeight || (isCanvasRotated ? 80 : 100);
+
+    const defaultLeft = (containerWidth - baseWidth) / 2;
+    const defaultTop = (containerHeight - baseHeight) / 2;
+
+    joystickBase.style.transition = "left 0.15s ease-out, top 0.15s ease-out";
+    joystickBase.style.left = `${defaultLeft}px`;
+    joystickBase.style.top = `${defaultTop}px`;
+
     joystickHandle.style.transform = "translate(0px, 0px)";
     joystickInput.x = 0;
     joystickInput.y = 0;
   }
 
-  joystickBase.addEventListener("touchstart", handleTouchStart, { passive: false });
-  joystickBase.addEventListener("touchmove", handleTouchMove, { passive: false });
-  joystickBase.addEventListener("touchend", handleTouchEnd);
-  joystickBase.addEventListener("touchcancel", handleTouchEnd);
+  joystickContainer.addEventListener("touchstart", handleTouchStart, { passive: false });
+  joystickContainer.addEventListener("touchmove", handleTouchMove, { passive: false });
+  joystickContainer.addEventListener("touchend", handleTouchEnd);
+  joystickContainer.addEventListener("touchcancel", handleTouchEnd);
 }
 
 // ゲーム開始処理
@@ -412,6 +493,7 @@ function startGame() {
   keysPressed = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
   joystickInput = { x: 0, y: 0 };
   joystickActive = false;
+  resetJoystickPosition();
   isGameRunning = false;
   
   // 画面切り替え
@@ -1445,6 +1527,7 @@ function resetToStart() {
   keysPressed = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
   joystickInput = { x: 0, y: 0 };
   joystickActive = false;
+  resetJoystickPosition();
   changedMarkerChars = [];
 
   document.getElementById("game-over-overlay").classList.remove("active");
