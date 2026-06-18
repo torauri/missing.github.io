@@ -618,12 +618,15 @@ function updateTimerUI() {
 function hideTemporaryMarkers() {
   if (changedMarkerChars.length === 0) return;
 
-  changedMarkerChars.forEach(name => {
-    const pawn = document.getElementById(`char-pawn-${name}`);
-    if (pawn) {
-      pawn.classList.remove("marker-share", "marker-fan", "marker-circle");
-    }
-  });
+  // マーカー非表示モードのときのみ、一時表示マーカーを消去する
+  if (hideMarkersAfterPhase1) {
+    changedMarkerChars.forEach(name => {
+      const pawn = document.getElementById(`char-pawn-${name}`);
+      if (pawn) {
+        pawn.classList.remove("marker-share", "marker-fan", "marker-circle");
+      }
+    });
+  }
 
   changedMarkerChars = [];
 }
