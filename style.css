@@ -1030,7 +1030,12 @@ body {
   justify-content: center;
   align-items: center;
   touch-action: none; /* スマホでのスクロールを無効化 */
-  transition: left 0.15s ease-out, top 0.15s ease-out;
+  opacity: 0; /* タップされていない時は非表示 */
+  transition: left 0.15s ease-out, top 0.15s ease-out, opacity 0.15s ease-out;
+}
+
+#joystick-base.active {
+  opacity: 1;
 }
 
 #joystick-handle {

@@ -344,6 +344,7 @@ function resetJoystickPosition() {
   const defaultTop = (cH - bH) / 2;
 
   joystickBase.style.transition = "none";
+  joystickBase.classList.remove("active");
   joystickBase.style.left = `${defaultLeft}px`;
   joystickBase.style.top = `${defaultTop}px`;
   joystickHandle.style.transform = "translate(0px, 0px)";
@@ -395,6 +396,7 @@ function setupJoystickEvents() {
     localY = Math.max(minY, Math.min(localY, maxY));
 
     joystickBase.style.transition = "none";
+    joystickBase.classList.add("active");
     joystickBase.style.left = `${localX - baseWidth / 2}px`;
     joystickBase.style.top = `${localY - baseHeight / 2}px`;
 
@@ -459,7 +461,8 @@ function setupJoystickEvents() {
     const defaultLeft = (containerWidth - baseWidth) / 2;
     const defaultTop = (containerHeight - baseHeight) / 2;
 
-    joystickBase.style.transition = "left 0.15s ease-out, top 0.15s ease-out";
+    joystickBase.style.transition = ""; // CSS側のデフォルトtransition（opacityフェードアウトを含む）を適用
+    joystickBase.classList.remove("active");
     joystickBase.style.left = `${defaultLeft}px`;
     joystickBase.style.top = `${defaultTop}px`;
 
