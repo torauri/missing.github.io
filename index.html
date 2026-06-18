@@ -21,6 +21,10 @@
         
         <div class="selection-container">
           <h2>自身のキャラクターを選択してください</h2>
+          <!-- 開始ボタンをグリッドの上に移動、初期状態では非表示 -->
+          <div class="start-btn-container" id="start-btn-container" style="display: none; margin: 20px 0;">
+            <button id="start-game-btn" class="neon-btn primary disabled" disabled>ミッシング詠唱開始</button>
+          </div>
           <div class="character-grid" id="char-selection-grid">
             <!-- JSで動的に選択カードを生成 -->
           </div>
@@ -51,8 +55,6 @@
             </div>
           </div>
         </div>
-        
-        <button id="start-game-btn" class="neon-btn primary disabled" disabled>ミッシング詠唱開始</button>
       </div>
     </section>
 
@@ -78,18 +80,6 @@
           </div>
         </div>
       </header>
-      
-      <!-- タイマーHUD -->
-      <div id="timer-container" class="glass-panel">
-        <div class="timer-label-group">
-          <span class="label">LIMIT</span>
-          <span id="timer-countdown" class="value text-neon-yellow">10.0</span>
-          <span class="label-sec">s</span>
-        </div>
-        <div id="timer-bar-bg">
-          <div id="timer-bar"></div>
-        </div>
-      </div>
 
       <!-- ゲームフィールド用コンテナ -->
       <div id="game-container">
@@ -97,6 +87,18 @@
         <div id="game-field">
           <!-- 背景グリッド -->
           <div class="field-grid"></div>
+          
+          <!-- タイマーHUD (ゲームフィールド内部の右端に縦型で配置、見切れ防止) -->
+          <div id="timer-container" class="glass-panel">
+            <div class="timer-label-group">
+              <span class="label">LIMIT</span>
+              <span id="timer-countdown" class="value text-neon-yellow">10.0</span>
+              <span class="label-sec">s</span>
+            </div>
+            <div id="timer-bar-bg">
+              <div id="timer-bar"></div>
+            </div>
+          </div>
           
           <!-- 基本オブジェクト (ボス・円) -->
           <div id="boss-object" class="field-object boss">

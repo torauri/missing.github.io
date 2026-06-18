@@ -147,19 +147,11 @@ function resizeGameField() {
   // 仮想スティックの位置調整
   const joystickContainer = document.getElementById("joystick-container");
   if (joystickContainer) {
-    if (shouldRotate) {
-      // 90度回転時は、元の座標系で「右下」に配置することで、回転後に物理的な「左下」に見えるようにする
-      joystickContainer.style.left = "auto";
-      joystickContainer.style.right = "30px";
-      joystickContainer.style.bottom = "30px";
-      joystickContainer.style.top = "auto";
-    } else {
-      // 通常時は「左下」に配置
-      joystickContainer.style.left = "30px";
-      joystickContainer.style.right = "auto";
-      joystickContainer.style.bottom = "30px";
-      joystickContainer.style.top = "auto";
-    }
+    // 回転・通常に関わらず、常にローカルの「左下」に配置する（親要素が回転しているため、これで物理的にも左下になる）
+    joystickContainer.style.left = "30px";
+    joystickContainer.style.right = "auto";
+    joystickContainer.style.bottom = "30px";
+    joystickContainer.style.top = "auto";
   }
 }
 
@@ -186,6 +178,12 @@ function setupCharacterSelection() {
       document.querySelectorAll(".char-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
       playerChar = name;
+      
+      // 開始ボタンコンテナを表示する
+      const startBtnContainer = document.getElementById("start-btn-container");
+      if (startBtnContainer) {
+        startBtnContainer.style.display = "block";
+      }
       
       const startBtn = document.getElementById("start-game-btn");
       startBtn.classList.remove("disabled");
@@ -658,7 +656,8 @@ function updateTimerUI() {
   // 現在のフェーズの最大秒数
   const maxLimit = config.phases[String(currentPhase)]?.time_limit || 10;
   const percentage = Math.max(0, Math.min(100, (timeRemaining / (maxLimit * 1000)) * 100));
-  barEl.style.width = `${percentage}%`;
+  barEl.style.height = `${percentage}%`; // 高さを変更（縦型）
+  barEl.style.width = '100%';
 
   // フェーズ開始から5秒（5000ms）経過したら、一時表示されていたマーカーを非表示にする
   const elapsedMs = (maxLimit * 1000) - timeRemaining;
@@ -677,7 +676,7 @@ function updateTimerUI() {
     barEl.style.boxShadow = "0 0 10px var(--neon-orange)";
   } else {
     countdownEl.className = "value text-neon-yellow";
-    barEl.style.background = "linear-gradient(90deg, var(--neon-yellow) 0%, var(--neon-orange) 50%, var(--neon-red) 100%)";
+    barEl.style.background = "linear-gradient(to top, var(--neon-red) 0%, var(--neon-orange) 50%, var(--neon-yellow) 100%)"; // 縦グラデーション
     barEl.style.boxShadow = "0 0 10px rgba(255, 238, 0, 0.5)";
   }
 }
@@ -1331,6 +1330,16 @@ function resetToStart() {
   document.getElementById("game-screen").classList.remove("active");
   document.getElementById("start-screen").classList.add("active");
   
+  const startBtnContainer = document.getElementById("start-btn-container");
+  if (startBtnContainer) {
+    startBtnContainer.style.display = "none";
+  }
+  const startBtn = document.getElementById("start-game-btn");
+  if (startBtn) {
+    startBtn.classList.add("disabled");
+    startBtn.setAttribute("disabled", "true");
+  }
+
   playerChar = null;
   setupCharacterSelection();
 }
