@@ -232,6 +232,17 @@ class AdjusterApp:
         self.phase_priority_entry.bind("<FocusOut>", lambda e: self.apply_phase_priority())
         self.phase_priority_entry.bind("<Return>", lambda e: self.apply_phase_priority())
         
+        # 制限時間設定用サブフレーム
+        time_limit_frame = ttk.Frame(phase_lf)
+        time_limit_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(time_limit_frame, text="制限時間 (秒):").pack(side=tk.LEFT)
+        self.phase_time_limit_var = tk.StringVar()
+        self.phase_time_limit_entry = ttk.Entry(time_limit_frame, textvariable=self.phase_time_limit_var, width=8)
+        self.phase_time_limit_entry.pack(side=tk.LEFT, padx=5)
+        self.phase_time_limit_entry.bind("<FocusOut>", lambda e: self.apply_phase_time_limit())
+        self.phase_time_limit_entry.bind("<Return>", lambda e: self.apply_phase_time_limit())
+        
         # 4. ボタン追加・編集
         self.btn_lf = ttk.LabelFrame(self.scroll_content, text="回答ボタン設定 (X/Y座標は中央基準)", padding=10)
         self.btn_lf.pack(fill=tk.X, pady=5)
@@ -448,6 +459,7 @@ class AdjusterApp:
         self.sync_button_list()
         self.sync_change_group()
         self.sync_phase_priority()
+        self.sync_phase_time_limit()
         self.draw_canvas()
 
     def sync_button_list(self):
@@ -489,6 +501,24 @@ class AdjusterApp:
                 return
         ph = self.config_data.setdefault("phases", {}).setdefault(self.current_phase, {})
         ph["priority"] = priority
+
+    def sync_phase_time_limit(self):
+        ph = self.config_data.get("phases", {}).get(self.current_phase, {})
+        limit = ph.get("time_limit", 10)
+        self.phase_time_limit_var.set(str(limit))
+
+    def apply_phase_time_limit(self):
+        limit_str = self.phase_time_limit_var.get().strip()
+        try:
+            limit = int(limit_str)
+            if limit <= 0:
+                raise ValueError()
+        except ValueError:
+            messagebox.showerror("制限時間エラー", "制限時間には1以上の整数を入力してください。")
+            self.sync_phase_time_limit()
+            return
+        ph = self.config_data.setdefault("phases", {}).setdefault(self.current_phase, {})
+        ph["time_limit"] = limit
 
     def disable_change_targets_frame(self):
         self.target_group_var.set("")

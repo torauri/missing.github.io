@@ -84,7 +84,8 @@
         }
       ],
       "change_target_group": "グループ1",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "2": {
       "buttons": [
@@ -166,12 +167,14 @@
         }
       ],
       "change_target_group": "グループ1",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "3": {
       "buttons": [],
       "change_target_group": "",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "4": {
       "buttons": [
@@ -242,7 +245,8 @@
         }
       ],
       "change_target_group": "グループ1",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "5": {
       "buttons": [
@@ -324,12 +328,14 @@
         }
       ],
       "change_target_group": "グループ2",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "6": {
       "buttons": [],
       "change_target_group": "",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "7": {
       "buttons": [
@@ -400,7 +406,8 @@
         }
       ],
       "change_target_group": "グループ2",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "8": {
       "buttons": [
@@ -482,12 +489,14 @@
         }
       ],
       "change_target_group": "グループ2",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "9": {
       "buttons": [],
       "change_target_group": "",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "10": {
       "buttons": [
@@ -558,7 +567,8 @@
         }
       ],
       "change_target_group": "グループ2",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "11": {
       "buttons": [
@@ -640,12 +650,14 @@
         }
       ],
       "change_target_group": "グループ1",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     },
     "12": {
       "buttons": [],
       "change_target_group": "",
-      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4"
+      "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
+      "time_limit": 10
     }
   }
 }

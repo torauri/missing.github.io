@@ -819,3 +819,237 @@ body {
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
+
+/* --- 新しいプレイモード用のスタイル --- */
+
+.hidden {
+  display: none !important;
+}
+
+/* 操作選択画面 */
+.mode-selection-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.mode-selection-container .mode-selection {
+  margin: 0;
+}
+
+.control-selection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 8px 20px;
+}
+
+.control-title {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.control-options {
+  display: flex;
+  gap: 20px;
+}
+
+/* カスタムラジオボタン */
+.radio-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  user-select: none;
+  transition: color 0.3s ease;
+}
+
+.radio-container:hover {
+  color: var(--text-primary);
+}
+
+.radio-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.radiomark {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  height: 18px;
+  width: 18px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.radio-container:hover input ~ .radiomark {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+}
+
+.radio-container input:checked ~ .radiomark {
+  background-color: rgba(0, 242, 254, 0.1);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
+}
+
+.radiomark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  top: 4px;
+  left: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--neon-blue);
+  box-shadow: 0 0 6px var(--neon-blue);
+}
+
+.radio-container input:checked ~ .radiomark:after {
+  display: block;
+}
+
+/* タイマーHUD */
+#timer-container {
+  width: 95%;
+  max-width: 1024px;
+  padding: 12px 25px;
+  margin-top: -5px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.timer-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.label-sec {
+  font-size: 0.8rem;
+  color: var(--text-disabled);
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+#timer-bar-bg {
+  flex: 1;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+#timer-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--neon-yellow) 0%, var(--neon-orange) 50%, var(--neon-red) 100%);
+  box-shadow: 0 0 10px rgba(255, 238, 0, 0.5);
+  border-radius: 6px;
+  transition: width 0.1s linear, background 0.3s ease;
+}
+
+/* 仮想スティック */
+#joystick-container {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  width: 140px;
+  height: 140px;
+  z-index: 100;
+  pointer-events: auto;
+}
+
+#joystick-base {
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 17, 28, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 2px solid rgba(189, 0, 255, 0.3);
+  box-shadow: 0 0 15px rgba(189, 0, 255, 0.15), inset 0 0 15px rgba(189, 0, 255, 0.1);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none; /* スマホでのスクロールを無効化 */
+}
+
+#joystick-handle {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, var(--neon-purple) 0%, #7b00a6 100%);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 15px var(--neon-purple), 0 4px 10px rgba(0,0,0,0.6);
+  border-radius: 50%;
+  position: absolute;
+  cursor: pointer;
+  touch-action: none;
+  transition: transform 0.05s ease;
+}
+
+/* ターゲットエリア（踏むべき位置） */
+.target-area {
+  position: absolute;
+  border-radius: 8px;
+  background: rgba(0, 242, 254, 0.03);
+  border: 2px dashed rgba(0, 242, 254, 0.4);
+  box-shadow: inset 0 0 10px rgba(0, 242, 254, 0.05);
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none; /* キャラクター移動の邪魔をしない */
+  color: rgba(0, 242, 254, 0.7);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px;
+  text-shadow: 0 0 5px rgba(0, 242, 254, 0.5);
+  box-sizing: border-box;
+}
+
+/* プレイヤーが侵入している状態 */
+.target-area.active {
+  background: rgba(0, 242, 254, 0.15);
+  border: 2px solid var(--neon-blue);
+  box-shadow: inset 0 0 20px rgba(0, 242, 254, 0.2), 0 0 15px rgba(0, 242, 254, 0.3);
+  color: var(--neon-blue);
+  text-shadow: 0 0 8px var(--neon-blue);
+  animation: area-pulse 1s infinite alternate;
+}
+
+@keyframes area-pulse {
+  from { opacity: 0.85; }
+  to { opacity: 1; }
+}
+
+/* プレイヤーが操作する際のtransition無効化 */
+.char-pawn.no-transition {
+  transition: none !important;
+}

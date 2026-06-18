@@ -26,12 +26,30 @@
           </div>
         </div>
         
-        <div class="mode-selection">
-          <label class="checkbox-container">
-            <input type="checkbox" id="hide-markers-mode-chk">
-            <span class="checkmark"></span>
-            フェーズ1の後はキャラクターのマークを表示しない
-          </label>
+        <div class="mode-selection-container">
+          <div class="mode-selection">
+            <label class="checkbox-container">
+              <input type="checkbox" id="hide-markers-mode-chk">
+              <span class="checkmark"></span>
+              フェーズ1の後はキャラクターのマークを表示しない
+            </label>
+          </div>
+          
+          <div class="control-selection">
+            <span class="control-title">操作方法:</span>
+            <div class="control-options">
+              <label class="radio-container">
+                <input type="radio" name="control-type" value="wasd" checked>
+                <span class="radiomark"></span>
+                PC: WASDキー移動
+              </label>
+              <label class="radio-container">
+                <input type="radio" name="control-type" value="joystick">
+                <span class="radiomark"></span>
+                スマホ: 仮想スティック
+              </label>
+            </div>
+          </div>
         </div>
         
         <button id="start-game-btn" class="neon-btn primary disabled" disabled>ミッシング詠唱開始</button>
@@ -60,6 +78,18 @@
           </div>
         </div>
       </header>
+      
+      <!-- タイマーHUD -->
+      <div id="timer-container" class="glass-panel">
+        <div class="timer-label-group">
+          <span class="label">LIMIT</span>
+          <span id="timer-countdown" class="value text-neon-yellow">10.0</span>
+          <span class="label-sec">s</span>
+        </div>
+        <div id="timer-bar-bg">
+          <div id="timer-bar"></div>
+        </div>
+      </div>
 
       <!-- ゲームフィールド用コンテナ -->
       <div id="game-container">
@@ -84,11 +114,18 @@
             <span class="circle-label">右塔</span>
           </div>
 
-          <!-- 動的ボタン配置エリア -->
-          <div id="action-buttons-container"></div>
+          <!-- 動的ターゲットエリア配置エリア -->
+          <div id="target-areas-container"></div>
 
           <!-- キャラクター配置エリア -->
           <div id="characters-container"></div>
+          
+          <!-- 仮想スティック（スマホ操作時のみ表示） -->
+          <div id="joystick-container" class="hidden">
+            <div id="joystick-base">
+              <div id="joystick-handle"></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
