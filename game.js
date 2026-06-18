@@ -101,6 +101,7 @@ function resizeGameField() {
   const app = document.getElementById("app-container");
   const field = document.getElementById("game-field");
   const container = document.getElementById("game-container");
+  const header = document.getElementById("game-header");
   if (!field || !container || !app) return;
 
   const baseWidth = 1024;
@@ -114,6 +115,10 @@ function resizeGameField() {
   const shouldRotate = (viewportWidth < viewportHeight) && (controlType === "joystick");
   isCanvasRotated = shouldRotate;
 
+  // 実質的な利用可能サイズ（回転を考慮）
+  let screenWidth = viewportWidth;
+  let screenHeight = viewportHeight;
+
   if (shouldRotate) {
     // app-container を90度回転し、サイズを反転させる
     app.style.width = `${viewportHeight}px`;
@@ -123,6 +128,17 @@ function resizeGameField() {
     app.style.position = "absolute";
     app.style.left = `${(viewportWidth - viewportHeight) / 2}px`;
     app.style.top = `${(viewportHeight - viewportWidth) / 2}px`;
+    
+    // 回転後の実質的な画面幅・高さ
+    screenWidth = viewportHeight;
+    screenHeight = viewportWidth;
+    
+    // スマホ回転時はヘッダーを非常にコンパクトにする（見切れ防止）
+    if (header) {
+      header.style.padding = "5px 15px";
+      header.style.marginBottom = "5px";
+      header.style.width = "98%";
+    }
   } else {
     // 通常状態に戻す
     app.style.width = "100vw";
@@ -132,15 +148,34 @@ function resizeGameField() {
     app.style.position = "relative";
     app.style.left = "auto";
     app.style.top = "auto";
+    
+    if (header) {
+      header.style.padding = ""; // CSSのデフォルトに戻す
+      header.style.marginBottom = "";
+      header.style.width = "";
+    }
   }
 
-  // game-field のスケーリング計算 (app-container内でのサイズ基準)
-  const containerWidth = container.clientWidth;
-  const containerHeight = container.clientHeight;
+  // ヘッダーの実質的な高さを取得（要素が存在し、表示されている場合）
+  let headerHeight = 0;
+  if (header && header.offsetHeight > 0) {
+    const style = window.getComputedStyle(header);
+    const marginTop = parseFloat(style.marginTop) || 0;
+    const marginBottom = parseFloat(style.marginBottom) || 0;
+    headerHeight = header.offsetHeight + marginTop + marginBottom;
+  }
+
+  // ゲームフィールドが使える最大の高さと幅
+  // 上下の安全なマージン余白としてバッファを残す
+  const availableWidth = screenWidth - 20;
+  const availableHeight = screenHeight - headerHeight - 15;
+
+  // スケーリングの計算 (縦横比を完全に維持しながら、使えるスペースに100%収める)
+  const scaleX = availableWidth / baseWidth;
+  const scaleY = availableHeight / baseHeight;
   
-  const scaleX = containerWidth / baseWidth;
-  const scaleY = containerHeight / baseHeight;
-  const scale = Math.min(scaleX, scaleY, 1.3);
+  // 絶対に画面からはみ出さない（上下左右に合わせる）ように Math.min で決定
+  const scale = Math.max(0.1, Math.min(scaleX, scaleY, 1.3));
   
   field.style.transform = `translate(-50%, -50%) scale(${scale})`;
 
