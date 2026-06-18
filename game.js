@@ -14,7 +14,7 @@ let controlType = "wasd"; // "wasd" または "joystick"
 let isCanvasRotated = false; // 縦画面のスマホ操作時に90度回転しているかどうかのフラグ
 let keysPressed = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
 let joystickInput = { x: 0, y: 0 };
-let playerSpeed = 4.0;
+let playerSpeed = 5.5;
 let timeRemaining = 0; // 残り時間(ミリ秒)
 let timerInterval = null;
 let gameLoopId = null;
@@ -739,6 +739,12 @@ function runGameLoop() {
 function updatePlayerPosition() {
   if (!playerChar || !characters[playerChar]) return;
 
+  // ゲーム実行中・操作中は常にtransitionを無効化することでガタつきを防止
+  const pawn = document.getElementById(`char-pawn-${playerChar}`);
+  if (pawn) {
+    pawn.classList.add("no-transition");
+  }
+
   let moveX = 0;
   let moveY = 0;
 
@@ -777,10 +783,7 @@ function updatePlayerPosition() {
     characters[playerChar].y = newY;
 
     // DOM要素へ反映
-    const pawn = document.getElementById(`char-pawn-${playerChar}`);
     if (pawn) {
-      // 移動中はtransitionを無効化
-      pawn.classList.add("no-transition");
       pawn.style.left = `${newX}px`;
       pawn.style.top = `${newY}px`;
     }
