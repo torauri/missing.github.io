@@ -232,6 +232,17 @@ class AdjusterApp:
         self.phase_priority_entry.bind("<FocusOut>", lambda e: self.apply_phase_priority())
         self.phase_priority_entry.bind("<Return>", lambda e: self.apply_phase_priority())
         
+        # 制限時間設定用サブフレーム
+        time_limit_frame = ttk.Frame(phase_lf)
+        time_limit_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(time_limit_frame, text="制限時間 (秒):").pack(side=tk.LEFT)
+        self.phase_time_limit_var = tk.StringVar()
+        self.phase_time_limit_entry = ttk.Entry(time_limit_frame, textvariable=self.phase_time_limit_var, width=8)
+        self.phase_time_limit_entry.pack(side=tk.LEFT, padx=5)
+        self.phase_time_limit_entry.bind("<FocusOut>", lambda e: self.apply_phase_time_limit())
+        self.phase_time_limit_entry.bind("<Return>", lambda e: self.apply_phase_time_limit())
+        
         # 4. ボタン追加・編集
         self.btn_lf = ttk.LabelFrame(self.scroll_content, text="回答ボタン設定 (X/Y座標は中央基準)", padding=10)
         self.btn_lf.pack(fill=tk.X, pady=5)
@@ -448,6 +459,7 @@ class AdjusterApp:
         self.sync_button_list()
         self.sync_change_group()
         self.sync_phase_priority()
+        self.sync_phase_time_limit()
         self.draw_canvas()
 
     def sync_button_list(self):
@@ -490,6 +502,24 @@ class AdjusterApp:
         ph = self.config_data.setdefault("phases", {}).setdefault(self.current_phase, {})
         ph["priority"] = priority
 
+    def sync_phase_time_limit(self):
+        ph = self.config_data.get("phases", {}).get(self.current_phase, {})
+        limit = ph.get("time_limit", 10)
+        self.phase_time_limit_var.set(str(limit))
+
+    def apply_phase_time_limit(self):
+        limit_str = self.phase_time_limit_var.get().strip()
+        try:
+            limit = int(limit_str)
+            if limit <= 0:
+                raise ValueError()
+        except ValueError:
+            messagebox.showerror("制限時間エラー", "制限時間には1以上の整数を入力してください。")
+            self.sync_phase_time_limit()
+            return
+        ph = self.config_data.setdefault("phases", {}).setdefault(self.current_phase, {})
+        ph["time_limit"] = limit
+
     def disable_change_targets_frame(self):
         self.target_group_var.set("")
         for child in self.change_lf.winfo_children():
@@ -521,6 +551,58 @@ class AdjusterApp:
                 else:
                     child.config(state=tk.NORMAL)
 
+    def sync_buttons_across_group(self, changed_phase):
+        ph_num = int(changed_phase)
+        
+        # フェーズグループの決定
+        if ph_num in [1, 4, 7, 10]:
+            group_phases = ["1", "4", "7", "10"]
+        elif ph_num in [2, 5, 8, 11]:
+            group_phases = ["2", "5", "8", "11"]
+        else:
+            group_phases = ["3", "6", "9", "12"]
+            
+        source_buttons = self.config_data.get("phases", {}).get(changed_phase, {}).get("buttons", [])
+        
+        for target_phase in group_phases:
+            if target_phase == changed_phase:
+                continue
+                
+            ph = self.config_data.setdefault("phases", {}).setdefault(target_phase, {})
+            target_buttons = ph.setdefault("buttons", [])
+            new_target_buttons = []
+            
+            for src_btn in source_buttons:
+                # ID末尾のボタン番号（例: btn_1_3 の 3）をキーにしてマッピングする
+                src_btn_num = src_btn["id"].split("_")[-1] if "_" in src_btn["id"] else src_btn["id"]
+                
+                # target_buttons の中から同じボタン番号のものを探す
+                match_btn = None
+                for b in target_buttons:
+                    target_btn_num = b["id"].split("_")[-1] if "_" in b["id"] else b["id"]
+                    if target_btn_num == src_btn_num:
+                        match_btn = b
+                        break
+                
+                if match_btn:
+                    # 既存ボタン：位置、サイズ、ラベルを同期（ID、conditionなどは保持）
+                    updated_btn = match_btn.copy()
+                    updated_btn["label"] = src_btn["label"]
+                    updated_btn["x"] = src_btn["x"]
+                    updated_btn["y"] = src_btn["y"]
+                    updated_btn["w"] = src_btn["w"]
+                    updated_btn["h"] = src_btn["h"]
+                    new_target_buttons.append(updated_btn)
+                else:
+                    # 新規追加されたボタン：そのまま新規コピーし、IDをtarget_phaseに合わせて書き換える
+                    new_btn = src_btn.copy()
+                    parts = src_btn["id"].split("_")
+                    if len(parts) == 3:
+                        new_btn["id"] = f"btn_{target_phase}_{parts[2]}"
+                    new_target_buttons.append(new_btn)
+                    
+            ph["buttons"] = new_target_buttons
+
     # ボタン管理
     def add_button(self):
         ph = self.config_data.setdefault("phases", {}).setdefault(self.current_phase, {})
@@ -542,6 +624,7 @@ class AdjusterApp:
         self.sync_button_list()
         self.btn_listbox.select_set(len(buttons)-1)
         self.on_button_select(None)
+        self.sync_buttons_across_group(self.current_phase)
         self.draw_canvas()
 
     def delete_button(self):
@@ -556,6 +639,7 @@ class AdjusterApp:
             del buttons[self.selected_button_index]
             self.selected_button_index = -1
             self.sync_button_list()
+            self.sync_buttons_across_group(self.current_phase)
             self.draw_canvas()
 
     def on_button_select(self, event):
@@ -626,6 +710,7 @@ class AdjusterApp:
                 }
                 self.sync_button_list()
                 self.btn_listbox.select_set(self.selected_button_index)
+                self.sync_buttons_across_group(self.current_phase)
                 self.draw_canvas()
             except ValueError:
                 messagebox.showerror("エラー", "X, Y, W, Hには整数を入力してください。")
@@ -762,6 +847,7 @@ class AdjusterApp:
                 
                 self.btn_x_var.set(str(buttons[btn_idx]["x"]))
                 self.btn_y_var.set(str(buttons[btn_idx]["y"]))
+                self.sync_buttons_across_group(self.current_phase)
                 self.draw_canvas()
         elif self.drag_target == "resize_handle":
             ph = self.config_data.get("phases", {}).get(self.current_phase, {})
@@ -783,6 +869,7 @@ class AdjusterApp:
                 self.btn_y_var.set(str(btn["y"]))
                 self.btn_w_var.set(str(btn["w"]))
                 self.btn_h_var.set(str(btn["h"]))
+                self.sync_buttons_across_group(self.current_phase)
                 self.draw_canvas()
 
     def on_canvas_release(self, event):

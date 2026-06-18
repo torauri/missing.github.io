@@ -26,6 +26,14 @@
   user-select: none;
 }
 
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  touch-action: none;
+}
+
 body {
   background-color: var(--bg-primary);
   background-image: 
@@ -33,8 +41,6 @@ body {
     radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
   color: var(--text-primary);
   font-family: var(--font-main);
-  height: 100vh;
-  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -818,4 +824,522 @@ body {
   border: solid var(--neon-blue);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
+}
+
+/* --- 新しいプレイモード用のスタイル --- */
+
+.hidden {
+  display: none !important;
+}
+
+/* 操作選択画面 */
+.mode-selection-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.mode-selection-container .mode-selection {
+  margin: 0;
+}
+
+.control-selection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 8px 20px;
+}
+
+.control-title {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.control-options {
+  display: flex;
+  gap: 20px;
+}
+
+/* カスタムラジオボタン */
+.radio-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  user-select: none;
+  transition: color 0.3s ease;
+}
+
+.radio-container:hover {
+  color: var(--text-primary);
+}
+
+.radio-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.radiomark {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  height: 18px;
+  width: 18px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.radio-container:hover input ~ .radiomark {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+}
+
+.radio-container input:checked ~ .radiomark {
+  background-color: rgba(0, 242, 254, 0.1);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
+}
+
+.radiomark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  top: 4px;
+  left: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--neon-blue);
+  box-shadow: 0 0 6px var(--neon-blue);
+}
+
+.radio-container input:checked ~ .radiomark:after {
+  display: block;
+}
+
+/* タイマーHUD (縦型) */
+#timer-container {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 75px;
+  height: 380px;
+  padding: 15px 5px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  z-index: 90;
+  box-shadow: 0 0 15px rgba(255, 238, 0, 0.1);
+  margin: 0;
+}
+
+.timer-label-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.timer-label-group .label {
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+}
+
+.timer-label-group .value {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.label-sec {
+  font-size: 0.7rem;
+  color: var(--text-disabled);
+  font-weight: 600;
+  margin-top: -2px;
+  margin-left: 0;
+}
+
+#timer-bar-bg {
+  width: 12px;
+  height: 250px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+#timer-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, var(--neon-red) 0%, var(--neon-orange) 50%, var(--neon-yellow) 100%);
+  box-shadow: 0 0 10px rgba(255, 238, 0, 0.5);
+  border-radius: 6px;
+  position: absolute;
+  bottom: 0;
+  /* 背景色のカラー遷移(background)のみアニメーションさせ、高さを100%リセットする際の滑り上がり(height transition)を防ぐ */
+  transition: background 0.3s ease;
+}
+
+/* 仮想スティック */
+#joystick-container {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  width: 140px;
+  height: 140px;
+  z-index: 100;
+  pointer-events: auto;
+}
+
+#joystick-base {
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 17, 28, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 2px solid rgba(189, 0, 255, 0.3);
+  box-shadow: 0 0 15px rgba(189, 0, 255, 0.15), inset 0 0 15px rgba(189, 0, 255, 0.1);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none; /* スマホでのスクロールを無効化 */
+}
+
+#joystick-handle {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, var(--neon-purple) 0%, #7b00a6 100%);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 15px var(--neon-purple), 0 4px 10px rgba(0,0,0,0.6);
+  border-radius: 50%;
+  position: absolute;
+  cursor: pointer;
+  touch-action: none;
+  transition: transform 0.05s ease;
+}
+
+/* ターゲットエリア（踏むべき位置） */
+.target-area {
+  position: absolute;
+  border-radius: 8px;
+  background: rgba(0, 242, 254, 0.03);
+  border: 2px dashed rgba(0, 242, 254, 0.4);
+  box-shadow: inset 0 0 10px rgba(0, 242, 254, 0.05);
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none; /* キャラクター移動の邪魔をしない */
+  color: rgba(0, 242, 254, 0.7);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px;
+  text-shadow: 0 0 5px rgba(0, 242, 254, 0.5);
+  box-sizing: border-box;
+}
+
+/* プレイヤーが侵入している状態 */
+.target-area.active {
+  background: rgba(0, 242, 254, 0.15);
+  border: 2px solid var(--neon-blue);
+  box-shadow: inset 0 0 20px rgba(0, 242, 254, 0.2), 0 0 15px rgba(0, 242, 254, 0.3);
+  color: var(--neon-blue);
+  text-shadow: 0 0 8px var(--neon-blue);
+  animation: area-pulse 1s infinite alternate;
+}
+
+@keyframes area-pulse {
+  from { opacity: 0.85; }
+  to { opacity: 1; }
+}
+
+/* プレイヤーが操作する際のtransition無効化 */
+.char-pawn.no-transition {
+  transition: none !important;
+}
+
+/* ==========================================================================
+   スマホ横画面（縦画面90度回転）時のためのレスポンシブコンパクト化
+   ========================================================================== */
+
+/* 画面全体の回転・中央完全フィット */
+#app-container.rotated {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 100vh !important;
+  height: 100vw !important;
+  transform: translate(-50%, -50%) rotate(90deg) !important;
+  transform-origin: center center !important;
+  overflow: hidden !important;
+}
+
+/* スタート画面のコンパクト化 */
+#app-container.rotated #start-screen .glass-panel {
+  padding: 10px 20px;
+  max-width: 95%;
+  width: 90%;
+  border-radius: 12px;
+}
+
+#app-container.rotated .glitch-title {
+  font-size: 1.8rem;
+  margin-bottom: 2px;
+  letter-spacing: 2px;
+}
+
+#app-container.rotated .subtitle {
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+#app-container.rotated .selection-container h2 {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+#app-container.rotated .character-grid {
+  gap: 8px;
+  max-width: 520px;
+  margin-bottom: 8px;
+}
+
+#app-container.rotated .char-card {
+  padding: 8px 5px;
+  border-radius: 8px;
+  gap: 3px;
+}
+
+#app-container.rotated .char-card .char-name {
+  font-size: 1.0rem;
+}
+
+#app-container.rotated .char-card .char-role {
+  font-size: 0.65rem;
+}
+
+#app-container.rotated .mode-selection-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+}
+
+#app-container.rotated .mode-selection,
+#app-container.rotated .control-selection {
+  margin: 0;
+}
+
+#app-container.rotated .control-options {
+  margin-top: 2px;
+  gap: 10px;
+}
+
+#app-container.rotated .start-btn-container {
+  margin: 8px 0 !important;
+}
+
+#app-container.rotated #start-game-btn {
+  font-size: 0.9rem;
+  padding: 8px 25px;
+}
+
+/* ゲームオーバー・ゲームクリア等のオーバーレイコンパクト化 */
+#app-container.rotated .overlay .overlay-content {
+  padding: 15px 25px;
+  max-width: 90%;
+  border-radius: 12px;
+}
+
+#app-container.rotated .overlay h2 {
+  font-size: 2.0rem;
+  margin-bottom: 5px;
+}
+
+#app-container.rotated .overlay-desc {
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+#app-container.rotated .overlay .neon-btn {
+  font-size: 0.9rem;
+  padding: 8px 25px;
+}
+
+/* スマホ回転時のゲーム画面UIの極限コンパクト化 (ゲーム画面の表示スペースを最大化) */
+#app-container.rotated #game-header {
+  padding: 4px 10px !important;
+  margin-bottom: 3px !important;
+  max-width: 100% !important;
+  width: 98% !important;
+  border-radius: 6px !important;
+}
+
+#app-container.rotated #game-header .header-left,
+#app-container.rotated #game-header .header-right {
+  gap: 5px !important;
+}
+
+#app-container.rotated #game-header .label {
+  font-size: 0.6rem !important;
+}
+
+#app-container.rotated #game-header .value {
+  font-size: 0.8rem !important;
+}
+
+#app-container.rotated #game-header .badge {
+  font-size: 0.6rem !important;
+  padding: 1px 4px !important;
+}
+
+#app-container.rotated #game-header .header-center {
+  font-size: 0.8rem !important;
+  letter-spacing: 0.5px !important;
+}
+
+#app-container.rotated #game-header .user-char-info {
+  font-size: 0.75rem !important;
+}
+
+/* タイマーHUDの極限コンパクト化 (戦闘フィールドを邪魔しない極細・極小化) */
+#app-container.rotated #timer-container {
+  right: 10px !important;
+  width: 45px !important; /* さらに細く */
+  height: 280px !important; /* 高さを小さくしてフィールド内に収める */
+  padding: 8px 3px !important;
+  gap: 6px !important;
+  box-shadow: 0 0 10px rgba(255, 238, 0, 0.05) !important;
+}
+
+#app-container.rotated .timer-label-group {
+  gap: 1px !important;
+}
+
+#app-container.rotated .timer-label-group .label {
+  font-size: 0.55rem !important;
+}
+
+#app-container.rotated .timer-label-group .value {
+  font-size: 0.9rem !important;
+}
+
+#app-container.rotated .label-sec {
+  font-size: 0.5rem !important;
+  margin-top: -1px !important;
+}
+
+#app-container.rotated #timer-bar-bg {
+  width: 8px !important;
+  height: 180px !important;
+}
+
+/* 確認ボタンのホバー挙動 */
+.neon-btn.secondary-btn {
+  cursor: pointer;
+}
+.neon-btn.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--text-primary) !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 補助マーカーボタンの基本スタイル */
+#helper-marker-container {
+  position: absolute;
+  right: 110px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 90;
+}
+
+.helper-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(15, 17, 28, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  transition: all 0.2s ease;
+  touch-action: none;
+}
+
+.helper-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+}
+
+.helper-btn.active {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 15px var(--neon-blue), inset 0 0 10px rgba(0, 242, 254, 0.2);
+  color: var(--neon-blue);
+  transform: scale(1.05);
+}
+
+/* 頭上の補助マーカー要素 */
+.helper-marker {
+  position: absolute;
+  top: -46px; /* 通常マーカーの上 */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1rem;
+  z-index: 5;
+  pointer-events: none;
+  animation: helper-pulse 1s infinite alternate;
+}
+
+@keyframes helper-pulse {
+  from { transform: translateX(-50%) scale(0.9); }
+  to { transform: translateX(-50%) scale(1.1); }
+}
+
+/* スマホ回転時の補助マーカーボタンの縮小と寄せる位置調整 */
+#app-container.rotated .helper-btn {
+  width: 35px !important;
+  height: 35px !important;
+  font-size: 1.0rem !important;
+}
+
+#app-container.rotated #helper-marker-container {
+  right: 65px !important; /* タイマーが細くなったのでそれに合わせて右に寄せる */
+  gap: 10px !important;
 }

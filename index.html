@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Phase2 - ミッシング -</title>
   <!-- Google Fonts: Outfit & Noto Sans JP -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,20 +21,40 @@
         
         <div class="selection-container">
           <h2>自身のキャラクターを選択してください</h2>
+          <!-- 開始ボタンをグリッドの上に移動、初期状態では非表示 -->
+          <div class="start-btn-container" id="start-btn-container" style="display: none; margin: 20px 0;">
+            <button id="start-game-btn" class="neon-btn primary disabled" disabled>ミッシング詠唱開始</button>
+          </div>
           <div class="character-grid" id="char-selection-grid">
             <!-- JSで動的に選択カードを生成 -->
           </div>
         </div>
         
-        <div class="mode-selection">
-          <label class="checkbox-container">
-            <input type="checkbox" id="hide-markers-mode-chk">
-            <span class="checkmark"></span>
-            フェーズ1の後はキャラクターのマークを表示しない
-          </label>
+        <div class="mode-selection-container">
+          <div class="mode-selection">
+            <label class="checkbox-container">
+              <input type="checkbox" id="hide-markers-mode-chk">
+              <span class="checkmark"></span>
+              フェーズ1の後はキャラクターのマークを表示しない
+            </label>
+          </div>
+          
+          <div class="control-selection">
+            <span class="control-title">操作方法:</span>
+            <div class="control-options">
+              <label class="radio-container">
+                <input type="radio" name="control-type" value="wasd" checked>
+                <span class="radiomark"></span>
+                PC: WASDキー移動
+              </label>
+              <label class="radio-container">
+                <input type="radio" name="control-type" value="joystick">
+                <span class="radiomark"></span>
+                スマホ: 仮想スティック
+              </label>
+            </div>
+          </div>
         </div>
-        
-        <button id="start-game-btn" class="neon-btn primary disabled" disabled>ミッシング詠唱開始</button>
       </div>
     </section>
 
@@ -68,6 +88,24 @@
           <!-- 背景グリッド -->
           <div class="field-grid"></div>
           
+          <!-- タイマーHUD (ゲームフィールド内部の右端に縦型で配置、見切れ防止) -->
+          <div id="timer-container" class="glass-panel">
+            <div class="timer-label-group">
+              <span class="label">LIMIT</span>
+              <span id="timer-countdown" class="value text-neon-yellow">10.0</span>
+              <span class="label-sec">s</span>
+            </div>
+            <div id="timer-bar-bg">
+              <div id="timer-bar"></div>
+            </div>
+          </div>
+          
+          <!-- 補助マーカーボタン（マーカー非表示モード時のみ表示） -->
+          <div id="helper-marker-container" class="hidden">
+            <button id="helper-btn-chain" class="helper-btn" title="鎖マーカーをペアに付与">🔗</button>
+            <button id="helper-btn-forbidden" class="helper-btn" title="禁止マーカーをペアに付与">🚫</button>
+          </div>
+          
           <!-- 基本オブジェクト (ボス・円) -->
           <div id="boss-object" class="field-object boss">
             <div class="boss-inner">
@@ -84,11 +122,18 @@
             <span class="circle-label">右塔</span>
           </div>
 
-          <!-- 動的ボタン配置エリア -->
-          <div id="action-buttons-container"></div>
+          <!-- 動的ターゲットエリア配置エリア -->
+          <div id="target-areas-container"></div>
 
           <!-- キャラクター配置エリア -->
           <div id="characters-container"></div>
+          
+          <!-- 仮想スティック（スマホ操作時のみ表示） -->
+          <div id="joystick-container" class="hidden">
+            <div id="joystick-base">
+              <div id="joystick-handle"></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -118,7 +163,11 @@
         <h2 class="text-fail text-neon-red glitch-title" data-text="YOU'RE MISSING">YOU'RE MISSING</h2>
         <p class="overlay-desc">正解の立ち位置ではありませんでした。<br>あなたのミスで固定はワイプしました。</p>
         <p class="fail-cause" id="fail-cause-text" style="color: var(--neon-orange); font-size: 1.1rem; font-weight: 800; margin-bottom: 25px; text-shadow: 0 0 8px rgba(255,119,0,0.5);"></p>
-        <button id="retry-game-btn" class="neon-btn danger">リトライ</button>
+        
+        <div class="game-over-buttons" style="display: flex; gap: 15px; justify-content: center;">
+          <button id="retry-game-btn" class="neon-btn danger">リトライ</button>
+          <button id="fail-confirm-btn" class="neon-btn secondary-btn" style="border: 2px solid var(--text-secondary); color: var(--text-secondary); background: transparent; box-shadow: none;">立ち位置を確認</button>
+        </div>
       </div>
     </div>
 
