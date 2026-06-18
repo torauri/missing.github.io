@@ -1270,3 +1270,75 @@ body {
   border-color: var(--text-primary) !important;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.1) !important;
 }
+
+/* 補助マーカーボタンの基本スタイル */
+#helper-marker-container {
+  position: absolute;
+  right: 110px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 90;
+}
+
+.helper-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(15, 17, 28, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  transition: all 0.2s ease;
+  touch-action: none;
+}
+
+.helper-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+}
+
+.helper-btn.active {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 15px var(--neon-blue), inset 0 0 10px rgba(0, 242, 254, 0.2);
+  color: var(--neon-blue);
+  transform: scale(1.05);
+}
+
+/* 頭上の補助マーカー要素 */
+.helper-marker {
+  position: absolute;
+  top: -46px; /* 通常マーカーの上 */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1rem;
+  z-index: 5;
+  pointer-events: none;
+  animation: helper-pulse 1s infinite alternate;
+}
+
+@keyframes helper-pulse {
+  from { transform: translateX(-50%) scale(0.9); }
+  to { transform: translateX(-50%) scale(1.1); }
+}
+
+/* スマホ回転時の補助マーカーボタンの縮小と寄せる位置調整 */
+#app-container.rotated .helper-btn {
+  width: 35px !important;
+  height: 35px !important;
+  font-size: 1.0rem !important;
+}
+
+#app-container.rotated #helper-marker-container {
+  right: 65px !important; /* タイマーが細くなったのでそれに合わせて右に寄せる */
+  gap: 10px !important;
+}

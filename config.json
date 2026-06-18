@@ -661,7 +661,7 @@
       "buttons": [],
       "change_target_group": "",
       "priority": "H2 > H1 > ST > MT > D1 > D2 > D3 >D4",
-      "time_limit": 10
+      "time_limit": 5
     }
   }
 }

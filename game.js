@@ -24,6 +24,7 @@ let joystickActive = false;
 let joystickStartPos = { x: 0, y: 0 };
 let changedMarkerChars = []; // マーカーが変化したキャラを一時的に記録する配列
 let isCheckingPositions = false; // ワイプ時の立ち位置確認中フラグ
+let helperMarkerType = ""; // "chain" (鎖), "forbidden" (禁止), または "" (なし)
 
 // 固定ペア定義（グループ決定用）
 const PAIRS = [
@@ -252,6 +253,29 @@ function setupEventListeners() {
   document.getElementById("retry-game-btn").addEventListener("click", resetToStart);
   document.getElementById("restart-game-btn").addEventListener("click", resetToStart);
 
+  // 補助マーカーボタンのイベントバインド
+  const btnChain = document.getElementById("helper-btn-chain");
+  if (btnChain) {
+    const toggleChain = (e) => {
+      if (e) e.preventDefault();
+      helperMarkerType = (helperMarkerType === "chain") ? "" : "chain";
+      updateHelperMarkers();
+    };
+    btnChain.addEventListener("click", toggleChain);
+    btnChain.addEventListener("touchstart", toggleChain);
+  }
+
+  const btnForbidden = document.getElementById("helper-btn-forbidden");
+  if (btnForbidden) {
+    const toggleForbidden = (e) => {
+      if (e) e.preventDefault();
+      helperMarkerType = (helperMarkerType === "forbidden") ? "" : "forbidden";
+      updateHelperMarkers();
+    };
+    btnForbidden.addEventListener("click", toggleForbidden);
+    btnForbidden.addEventListener("touchstart", toggleForbidden);
+  }
+
   // 操作方法の変更監視
   document.querySelectorAll('input[name="control-type"]').forEach(radio => {
     radio.addEventListener("change", (e) => {
@@ -403,6 +427,18 @@ function startGame() {
   currentPhase = 1;
   lastApocalypseText = "";
   hideMarkersAfterPhase1 = document.getElementById("hide-markers-mode-chk").checked;
+  
+  // 補助マーカーボタンの表示切り替え
+  const helperContainer = document.getElementById("helper-marker-container");
+  if (helperContainer) {
+    if (hideMarkersAfterPhase1) {
+      helperContainer.classList.remove("hidden");
+    } else {
+      helperContainer.classList.add("hidden");
+    }
+  }
+  helperMarkerType = ""; // 初期化
+  updateHelperMarkers();
   
   // 1. 初期マーカーの付与
   assignInitialMarkers();
@@ -669,6 +705,18 @@ function resetCharacterPositions() {
       else if (m === MARKER_FAN) pawn.classList.add("marker-fan");
       else if (m === MARKER_CIRCLE) pawn.classList.add("marker-circle");
     }
+    
+    // 補助マーカー用要素の生成
+    const helperMarker = document.createElement("div");
+    helperMarker.className = "helper-marker";
+    const pairChar = getPlayerPairCharacter();
+    if (helperMarkerType && (name === playerChar || name === pairChar)) {
+      helperMarker.textContent = (helperMarkerType === "chain") ? "🔗" : "🚫";
+      helperMarker.style.display = "block";
+    } else {
+      helperMarker.style.display = "none";
+    }
+    pawn.appendChild(helperMarker);
     
     container.appendChild(pawn);
   });
@@ -1397,6 +1445,61 @@ function resetToStart() {
     startBtn.setAttribute("disabled", "true");
   }
 
+  // 補助マーカー状態のクリア
+  const helperContainer = document.getElementById("helper-marker-container");
+  if (helperContainer) {
+    helperContainer.classList.add("hidden");
+  }
+  helperMarkerType = "";
+  updateHelperMarkers();
+
   playerChar = null;
   setupCharacterSelection();
+}
+
+function getPlayerPairCharacter() {
+  if (!playerChar) return null;
+  for (const pair of PAIRS) {
+    if (pair.includes(playerChar)) {
+      return pair.find(name => name !== playerChar);
+    }
+  }
+  return null;
+}
+
+function updateHelperMarkers() {
+  const pairChar = getPlayerPairCharacter();
+  CHAR_NAMES.forEach(name => {
+    const pawn = document.getElementById(`char-pawn-${name}`);
+    if (pawn) {
+      let helperMarker = pawn.querySelector(".helper-marker");
+      if (!helperMarker) {
+        helperMarker = document.createElement("div");
+        helperMarker.className = "helper-marker";
+        pawn.appendChild(helperMarker);
+      }
+      
+      if (helperMarkerType && (name === playerChar || name === pairChar)) {
+        helperMarker.textContent = (helperMarkerType === "chain") ? "🔗" : "🚫";
+        helperMarker.style.display = "block";
+      } else {
+        helperMarker.style.display = "none";
+      }
+    }
+  });
+
+  const btnChain = document.getElementById("helper-btn-chain");
+  const btnForbidden = document.getElementById("helper-btn-forbidden");
+  if (btnChain && btnForbidden) {
+    if (helperMarkerType === "chain") {
+      btnChain.classList.add("active");
+      btnForbidden.classList.remove("active");
+    } else if (helperMarkerType === "forbidden") {
+      btnChain.classList.remove("active");
+      btnForbidden.classList.add("active");
+    } else {
+      btnChain.classList.remove("active");
+      btnForbidden.classList.remove("active");
+    }
+  }
 }
