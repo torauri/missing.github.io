@@ -23,6 +23,7 @@ let currentTargetAreas = []; // 現在配置されているターゲットエリ
 let joystickActive = false;
 let joystickStartPos = { x: 0, y: 0 };
 let changedMarkerChars = []; // マーカーが変化したキャラを一時的に記録する配列
+let isCheckingPositions = false; // ワイプ時の立ち位置確認中フラグ
 
 // 固定ペア定義（グループ決定用）
 const PAIRS = [
@@ -222,6 +223,29 @@ function setupEventListeners() {
   document.addEventListener("touchmove", (e) => {
     e.preventDefault();
   }, { passive: false });
+
+  // 立ち位置確認中の画面クリック/タップでの再表示処理
+  const handlePositionCheckDismiss = (e) => {
+    if (!isCheckingPositions) return;
+    isCheckingPositions = false;
+    document.getElementById("game-over-overlay").classList.add("active");
+  };
+
+  document.addEventListener("click", handlePositionCheckDismiss);
+  document.addEventListener("touchstart", handlePositionCheckDismiss);
+
+  // 立ち位置確認ボタンの制御
+  const failConfirmBtn = document.getElementById("fail-confirm-btn");
+  if (failConfirmBtn) {
+    failConfirmBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // 画面クリックイベントへのバブリングを防止
+      document.getElementById("game-over-overlay").classList.remove("active");
+      isCheckingPositions = true;
+    });
+    failConfirmBtn.addEventListener("touchstart", (e) => {
+      e.stopPropagation();
+    });
+  }
 
   document.getElementById("start-game-btn").addEventListener("click", startGame);
   document.getElementById("next-phase-btn").addEventListener("click", proceedToNextPhase);
@@ -1349,6 +1373,7 @@ function showGameClear() {
 
 function resetToStart() {
   isGameRunning = false;
+  isCheckingPositions = false;
   if (gameLoopId) cancelAnimationFrame(gameLoopId);
   if (timerInterval) clearInterval(timerInterval);
   

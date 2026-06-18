@@ -1259,3 +1259,14 @@ body {
   width: 8px !important;
   height: 180px !important;
 }
+
+/* 確認ボタンのホバー挙動 */
+.neon-btn.secondary-btn {
+  cursor: pointer;
+}
+.neon-btn.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--text-primary) !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1) !important;
+}
