@@ -995,7 +995,8 @@ body {
   border-radius: 6px;
   position: absolute;
   bottom: 0;
-  transition: height 0.1s linear, background 0.3s ease;
+  /* 背景色のカラー遷移(background)のみアニメーションさせ、高さを100%リセットする際の滑り上がり(height transition)を防ぐ */
+  transition: background 0.3s ease;
 }
 
 /* 仮想スティック */
