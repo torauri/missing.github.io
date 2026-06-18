@@ -710,8 +710,25 @@ function resetCharacterPositions() {
     const helperMarker = document.createElement("div");
     helperMarker.className = "helper-marker";
     const pairChar = getPlayerPairCharacter();
-    if (helperMarkerType && (name === playerChar || name === pairChar)) {
-      helperMarker.textContent = (helperMarkerType === "chain") ? "🔗" : "🚫";
+    let showHelper = false;
+    let helperText = "";
+    if (helperMarkerType) {
+      if (name === playerChar) {
+        showHelper = true;
+        helperText = (helperMarkerType === "chain") ? "🔗" : "🚫";
+      } else if (name === pairChar) {
+        const pairMarker = characters[pairChar]?.marker;
+        if (pairMarker === MARKER_FAN) {
+          showHelper = true;
+          helperText = "🔗";
+        } else if (pairMarker === MARKER_CIRCLE) {
+          showHelper = true;
+          helperText = "🚫";
+        }
+      }
+    }
+    if (showHelper) {
+      helperMarker.textContent = helperText;
       helperMarker.style.display = "block";
     } else {
       helperMarker.style.display = "none";
@@ -1479,8 +1496,26 @@ function updateHelperMarkers() {
         pawn.appendChild(helperMarker);
       }
       
-      if (helperMarkerType && (name === playerChar || name === pairChar)) {
-        helperMarker.textContent = (helperMarkerType === "chain") ? "🔗" : "🚫";
+      let showHelper = false;
+      let helperText = "";
+      if (helperMarkerType) {
+        if (name === playerChar) {
+          showHelper = true;
+          helperText = (helperMarkerType === "chain") ? "🔗" : "🚫";
+        } else if (name === pairChar) {
+          const pairMarker = characters[pairChar]?.marker;
+          if (pairMarker === MARKER_FAN) {
+            showHelper = true;
+            helperText = "🔗";
+          } else if (pairMarker === MARKER_CIRCLE) {
+            showHelper = true;
+            helperText = "🚫";
+          }
+        }
+      }
+      
+      if (showHelper) {
+        helperMarker.textContent = helperText;
         helperMarker.style.display = "block";
       } else {
         helperMarker.style.display = "none";
