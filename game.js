@@ -11,6 +11,7 @@ let phase12Step = 1;
 
 // 追加の操作・タイマー状態
 let controlType = "wasd"; // "wasd" または "joystick"
+let isCanvasRotated = false; // 縦画面のスマホ操作時に90度回転しているかどうかのフラグ
 let keysPressed = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
 let joystickInput = { x: 0, y: 0 };
 let playerSpeed = 4.0;
@@ -87,29 +88,79 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 function initApp() {
-  resizeGameField();
+  const selectedControl = document.querySelector('input[name="control-type"]:checked');
+  controlType = selectedControl ? selectedControl.value : "wasd";
+
   setupCharacterSelection();
   setupEventListeners();
+  resizeGameField();
 }
 
 // レスポンシブに1024x576のフィールドをスケールさせる
 function resizeGameField() {
+  const app = document.getElementById("app-container");
   const field = document.getElementById("game-field");
   const container = document.getElementById("game-container");
-  if (!field || !container) return;
+  if (!field || !container || !app) return;
 
   const baseWidth = 1024;
   const baseHeight = 576;
   
+  // ビューポートサイズを取得
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  // 縦長画面（幅 < 高さ）かつスマホ操作（joystick）が選択されている場合、90度回転させる
+  const shouldRotate = (viewportWidth < viewportHeight) && (controlType === "joystick");
+  isCanvasRotated = shouldRotate;
+
+  if (shouldRotate) {
+    // app-container を90度回転し、サイズを反転させる
+    app.style.width = `${viewportHeight}px`;
+    app.style.height = `${viewportWidth}px`;
+    app.style.transform = "rotate(90deg)";
+    app.style.transformOrigin = "center";
+    app.style.position = "absolute";
+    app.style.left = `${(viewportWidth - viewportHeight) / 2}px`;
+    app.style.top = `${(viewportHeight - viewportWidth) / 2}px`;
+  } else {
+    // 通常状態に戻す
+    app.style.width = "100vw";
+    app.style.height = "100vh";
+    app.style.transform = "none";
+    app.style.transformOrigin = "initial";
+    app.style.position = "relative";
+    app.style.left = "auto";
+    app.style.top = "auto";
+  }
+
+  // game-field のスケーリング計算 (app-container内でのサイズ基準)
   const containerWidth = container.clientWidth;
   const containerHeight = container.clientHeight;
   
   const scaleX = containerWidth / baseWidth;
   const scaleY = containerHeight / baseHeight;
-  const scale = Math.min(scaleX, scaleY, 1.3); // 最大1.3倍まで拡大、基本はフィット
+  const scale = Math.min(scaleX, scaleY, 1.3);
   
-  // 常に中央を基準にしてスケーリングを適用
   field.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+  // 仮想スティックの位置調整
+  const joystickContainer = document.getElementById("joystick-container");
+  if (joystickContainer) {
+    if (shouldRotate) {
+      // 90度回転時は、元の座標系で「右下」に配置することで、回転後に物理的な「左下」に見えるようにする
+      joystickContainer.style.left = "auto";
+      joystickContainer.style.right = "30px";
+      joystickContainer.style.bottom = "30px";
+      joystickContainer.style.top = "auto";
+    } else {
+      // 通常時は「左下」に配置
+      joystickContainer.style.left = "30px";
+      joystickContainer.style.right = "auto";
+      joystickContainer.style.bottom = "30px";
+      joystickContainer.style.top = "auto";
+    }
+  }
 }
 
 // キャラクター選択画面の構成
@@ -149,6 +200,14 @@ function setupEventListeners() {
   document.getElementById("next-phase-btn").addEventListener("click", proceedToNextPhase);
   document.getElementById("retry-game-btn").addEventListener("click", resetToStart);
   document.getElementById("restart-game-btn").addEventListener("click", resetToStart);
+
+  // 操作方法の変更監視
+  document.querySelectorAll('input[name="control-type"]').forEach(radio => {
+    radio.addEventListener("change", (e) => {
+      controlType = e.target.value;
+      resizeGameField();
+    });
+  });
 
   // WASDキーボードイベントの監視
   window.addEventListener("keydown", (e) => {
@@ -219,6 +278,14 @@ function setupJoystickEvents() {
 
     let deltaX = clientX - joystickStartPos.x;
     let deltaY = clientY - joystickStartPos.y;
+
+    if (isCanvasRotated) {
+      // 90度回転している場合、タッチの移動ベクトルを物理的な方向に変換する
+      const tempX = deltaX;
+      deltaX = deltaY;      // 物理的な右方向 (X) ＝ デバイスの下方向 (clientYの差分)
+      deltaY = -tempX;     // 物理的な下方向 (Y) ＝ デバイスの左方向 (-clientXの差分)
+    }
+
     let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
     // 最大ドラッグ距離
