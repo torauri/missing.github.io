@@ -847,8 +847,8 @@ function renderPastFutureTargetAreas() {
   let bottomCond = (lastApocalypseText === "過去の終焉") ? "true" : "false";
 
   if (currentPhase === 12 && phase12Step === 2) {
-    topLabel = "過去の終焉を避ける<br>(未来が正解)";
-    bottomLabel = "未来の終焉を避ける<br>(過去が正解)";
+    topLabel = "過去の終焉を避ける";
+    bottomLabel = "未来の終焉を避ける";
     const isPastApoc = (lastApocalypseText === "過去の終焉" || lastApocalypseText === "過去 of 終焉");
     topCond = isPastApoc ? "true" : "false";
     bottomCond = !isPastApoc ? "true" : "false";
