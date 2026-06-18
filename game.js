@@ -194,6 +194,11 @@ function setupCharacterSelection() {
 }
 
 function setupEventListeners() {
+  // スマホでの画面スクロールおよびバウンス防止
+  document.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+  }, { passive: false });
+
   document.getElementById("start-game-btn").addEventListener("click", startGame);
   document.getElementById("next-phase-btn").addEventListener("click", proceedToNextPhase);
   document.getElementById("retry-game-btn").addEventListener("click", resetToStart);
