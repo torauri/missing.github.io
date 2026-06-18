@@ -21,6 +21,7 @@ let isGameRunning = false;
 let currentTargetAreas = []; // 現在配置されているターゲットエリアの情報 [{x, y, w, h, condition, priority_type, el}]
 let joystickActive = false;
 let joystickStartPos = { x: 0, y: 0 };
+let changedMarkerChars = []; // マーカーが変化したキャラを一時的に記録する配列
 
 // 固定ペア定義（グループ決定用）
 const PAIRS = [
@@ -314,14 +315,13 @@ function assignInitialMarkers() {
   const shareDPS = dps[Math.floor(Math.random() * 4)];
   characters[shareDPS].marker = MARKER_SHARE;
 
-  // 残り6人
-  const remainingChars = CHAR_NAMES.filter(name => name !== shareTH && name !== shareDPS);
-  
-  // 3. 残り6人からランダムに3人に扇マーカー
-  // シャッフル
-  const shuffled = [...remainingChars].sort(() => 0.5 - Math.random());
-  const fanTargets = shuffled.slice(0, 3);
-  const circleTargets = shuffled.slice(3, 6);
+  // 3. 頭割りマーカーがついていない TH 3名 または DPS 3名 のどちらかに扇マーカーをつけ、もう片方に円マーカーをつける
+  const remainingTH = tanksHealers.filter(name => name !== shareTH);
+  const remainingDPS = dps.filter(name => name !== shareDPS);
+
+  const isFanTH = Math.random() < 0.5;
+  const fanTargets = isFanTH ? remainingTH : remainingDPS;
+  const circleTargets = isFanTH ? remainingDPS : remainingTH;
 
   fanTargets.forEach(name => {
     characters[name].marker = MARKER_FAN;
@@ -536,7 +536,7 @@ function resetCharacterPositions() {
     
     // マーカーに応じたクラス追加
     const m = characters[name].marker;
-    const shouldShowMarker = !hideMarkersAfterPhase1 || currentPhase === 1;
+    const shouldShowMarker = !hideMarkersAfterPhase1 || currentPhase === 1 || changedMarkerChars.includes(name);
     if (shouldShowMarker) {
       if (m === MARKER_SHARE) pawn.classList.add("marker-share");
       else if (m === MARKER_FAN) pawn.classList.add("marker-fan");
@@ -584,6 +584,11 @@ function updateTimerUI() {
   const percentage = Math.max(0, Math.min(100, (timeRemaining / (maxLimit * 1000)) * 100));
   barEl.style.width = `${percentage}%`;
 
+  // 制限時間の半分（50%）未満になったら、一時表示されていたマーカーを非表示にする
+  if (percentage < 50) {
+    hideTemporaryMarkers();
+  }
+
   // 残り時間が少なくなったらネオンカラーを赤に変更
   if (percentage < 30) {
     countdownEl.className = "value text-neon-red animate-pulse";
@@ -598,6 +603,19 @@ function updateTimerUI() {
     barEl.style.background = "linear-gradient(90deg, var(--neon-yellow) 0%, var(--neon-orange) 50%, var(--neon-red) 100%)";
     barEl.style.boxShadow = "0 0 10px rgba(255, 238, 0, 0.5)";
   }
+}
+
+function hideTemporaryMarkers() {
+  if (changedMarkerChars.length === 0) return;
+
+  changedMarkerChars.forEach(name => {
+    const pawn = document.getElementById(`char-pawn-${name}`);
+    if (pawn) {
+      pawn.classList.remove("marker-share", "marker-fan", "marker-circle");
+    }
+  });
+
+  changedMarkerChars = [];
 }
 
 // ゲームループ
@@ -1145,7 +1163,18 @@ function applyMarkerChanges() {
     });
   });
 
-  showPhaseClearOverlay(recordList);
+  // 今回マーカーが新しく付与された（消去フェーズ以外）キャラを一時表示対象として記録
+  changedMarkerChars = [];
+  if (currentPhase !== 10 && currentPhase !== 11) {
+    targets.forEach(name => {
+      if (characters[name].marker !== MARKER_NONE) {
+        changedMarkerChars.push(name);
+      }
+    });
+  }
+
+  // 確認画面を表示せず、即座に次のフェーズを開始する
+  startPhase(currentPhase + 1);
 }
 
 // 変化確認オーバーレイの表示
@@ -1207,7 +1236,6 @@ function showGameClear() {
   document.getElementById("game-clear-overlay").classList.add("active");
 }
 
-// スタート画面（初期状態）へリセット
 function resetToStart() {
   isGameRunning = false;
   if (gameLoopId) cancelAnimationFrame(gameLoopId);
@@ -1216,6 +1244,7 @@ function resetToStart() {
   keysPressed = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
   joystickInput = { x: 0, y: 0 };
   joystickActive = false;
+  changedMarkerChars = [];
 
   document.getElementById("game-over-overlay").classList.remove("active");
   document.getElementById("game-clear-overlay").classList.remove("active");
