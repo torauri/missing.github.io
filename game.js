@@ -133,13 +133,6 @@ function resizeGameField() {
     // 回転後の実質的な画面幅・高さ (反転)
     screenWidth = viewportHeight;
     screenHeight = viewportWidth;
-    
-    // スマホ回転時はヘッダーを非常にコンパクトにする（見切れ防止）
-    if (header) {
-      header.style.padding = "5px 15px";
-      header.style.marginBottom = "5px";
-      header.style.width = "98%";
-    }
   } else {
     // 通常状態に戻す
     app.classList.remove("rotated");
@@ -150,12 +143,6 @@ function resizeGameField() {
     app.style.position = "";
     app.style.left = "";
     app.style.top = "";
-    
-    if (header) {
-      header.style.padding = ""; // CSSのデフォルトに戻す
-      header.style.marginBottom = "";
-      header.style.width = "";
-    }
   }
 
   // ヘッダーの実質的な高さを取得（要素が存在し、表示されている場合）

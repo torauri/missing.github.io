@@ -1191,3 +1191,71 @@ body {
   font-size: 0.9rem;
   padding: 8px 25px;
 }
+
+/* スマホ回転時のゲーム画面UIの極限コンパクト化 (ゲーム画面の表示スペースを最大化) */
+#app-container.rotated #game-header {
+  padding: 4px 10px !important;
+  margin-bottom: 3px !important;
+  max-width: 100% !important;
+  width: 98% !important;
+  border-radius: 6px !important;
+}
+
+#app-container.rotated #game-header .header-left,
+#app-container.rotated #game-header .header-right {
+  gap: 5px !important;
+}
+
+#app-container.rotated #game-header .label {
+  font-size: 0.6rem !important;
+}
+
+#app-container.rotated #game-header .value {
+  font-size: 0.8rem !important;
+}
+
+#app-container.rotated #game-header .badge {
+  font-size: 0.6rem !important;
+  padding: 1px 4px !important;
+}
+
+#app-container.rotated #game-header .header-center {
+  font-size: 0.8rem !important;
+  letter-spacing: 0.5px !important;
+}
+
+#app-container.rotated #game-header .user-char-info {
+  font-size: 0.75rem !important;
+}
+
+/* タイマーHUDの極限コンパクト化 (戦闘フィールドを邪魔しない極細・極小化) */
+#app-container.rotated #timer-container {
+  right: 10px !important;
+  width: 45px !important; /* さらに細く */
+  height: 280px !important; /* 高さを小さくしてフィールド内に収める */
+  padding: 8px 3px !important;
+  gap: 6px !important;
+  box-shadow: 0 0 10px rgba(255, 238, 0, 0.05) !important;
+}
+
+#app-container.rotated .timer-label-group {
+  gap: 1px !important;
+}
+
+#app-container.rotated .timer-label-group .label {
+  font-size: 0.55rem !important;
+}
+
+#app-container.rotated .timer-label-group .value {
+  font-size: 0.9rem !important;
+}
+
+#app-container.rotated .label-sec {
+  font-size: 0.5rem !important;
+  margin-top: -1px !important;
+}
+
+#app-container.rotated #timer-bar-bg {
+  width: 8px !important;
+  height: 180px !important;
+}
