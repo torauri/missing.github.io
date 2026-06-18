@@ -518,9 +518,9 @@ function resetCharacterPositions() {
 
   CHAR_NAMES.forEach(name => {
     const pos = rows[name];
-    // 全フェーズで画面左上に並べて配置 (X=60〜240, Y=45〜95)
-    const x = 60 + pos.col * 60;
-    const y = 45 + (pos.row - 1) * 50;
+    // 全フェーズで画面中央下部に並べて配置 (X=400〜610, Y=475〜525)
+    const x = 400 + pos.col * 70;
+    const y = 475 + (pos.row - 1) * 50;
     
     characters[name].x = x;
     characters[name].y = y;
