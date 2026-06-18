@@ -1079,3 +1079,115 @@ body {
 .char-pawn.no-transition {
   transition: none !important;
 }
+
+/* ==========================================================================
+   スマホ横画面（縦画面90度回転）時のためのレスポンシブコンパクト化
+   ========================================================================== */
+
+/* 画面全体の回転・中央完全フィット */
+#app-container.rotated {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 100vh !important;
+  height: 100vw !important;
+  transform: translate(-50%, -50%) rotate(90deg) !important;
+  transform-origin: center center !important;
+  overflow: hidden !important;
+}
+
+/* スタート画面のコンパクト化 */
+#app-container.rotated #start-screen .glass-panel {
+  padding: 10px 20px;
+  max-width: 95%;
+  width: 90%;
+  border-radius: 12px;
+}
+
+#app-container.rotated .glitch-title {
+  font-size: 1.8rem;
+  margin-bottom: 2px;
+  letter-spacing: 2px;
+}
+
+#app-container.rotated .subtitle {
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+#app-container.rotated .selection-container h2 {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+#app-container.rotated .character-grid {
+  gap: 8px;
+  max-width: 520px;
+  margin-bottom: 8px;
+}
+
+#app-container.rotated .char-card {
+  padding: 8px 5px;
+  border-radius: 8px;
+  gap: 3px;
+}
+
+#app-container.rotated .char-card .char-name {
+  font-size: 1.0rem;
+}
+
+#app-container.rotated .char-card .char-role {
+  font-size: 0.65rem;
+}
+
+#app-container.rotated .mode-selection-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+}
+
+#app-container.rotated .mode-selection,
+#app-container.rotated .control-selection {
+  margin: 0;
+}
+
+#app-container.rotated .control-options {
+  margin-top: 2px;
+  gap: 10px;
+}
+
+#app-container.rotated .start-btn-container {
+  margin: 8px 0 !important;
+}
+
+#app-container.rotated #start-game-btn {
+  font-size: 0.9rem;
+  padding: 8px 25px;
+}
+
+/* ゲームオーバー・ゲームクリア等のオーバーレイコンパクト化 */
+#app-container.rotated .overlay .overlay-content {
+  padding: 15px 25px;
+  max-width: 90%;
+  border-radius: 12px;
+}
+
+#app-container.rotated .overlay h2 {
+  font-size: 2.0rem;
+  margin-bottom: 5px;
+}
+
+#app-container.rotated .overlay-desc {
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+#app-container.rotated .overlay .neon-btn {
+  font-size: 0.9rem;
+  padding: 8px 25px;
+}

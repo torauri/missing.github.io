@@ -120,16 +120,17 @@ function resizeGameField() {
   let screenHeight = viewportHeight;
 
   if (shouldRotate) {
-    // app-container を90度回転し、サイズを反転させる
-    app.style.width = `${viewportHeight}px`;
-    app.style.height = `${viewportWidth}px`;
-    app.style.transform = "rotate(90deg)";
-    app.style.transformOrigin = "center";
-    app.style.position = "absolute";
-    app.style.left = `${(viewportWidth - viewportHeight) / 2}px`;
-    app.style.top = `${(viewportHeight - viewportWidth) / 2}px`;
+    // app-container に回転用クラスを付与 (CSS側の絶対センタリングに任せる)
+    app.classList.add("rotated");
+    app.style.width = "";
+    app.style.height = "";
+    app.style.transform = "";
+    app.style.transformOrigin = "";
+    app.style.position = "";
+    app.style.left = "";
+    app.style.top = "";
     
-    // 回転後の実質的な画面幅・高さ
+    // 回転後の実質的な画面幅・高さ (反転)
     screenWidth = viewportHeight;
     screenHeight = viewportWidth;
     
@@ -141,13 +142,14 @@ function resizeGameField() {
     }
   } else {
     // 通常状態に戻す
-    app.style.width = "100vw";
-    app.style.height = "100vh";
-    app.style.transform = "none";
-    app.style.transformOrigin = "initial";
-    app.style.position = "relative";
-    app.style.left = "auto";
-    app.style.top = "auto";
+    app.classList.remove("rotated");
+    app.style.width = "";
+    app.style.height = "";
+    app.style.transform = "";
+    app.style.transformOrigin = "";
+    app.style.position = "";
+    app.style.left = "";
+    app.style.top = "";
     
     if (header) {
       header.style.padding = ""; // CSSのデフォルトに戻す
