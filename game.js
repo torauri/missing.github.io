@@ -517,18 +517,27 @@ function resetCharacterPositions() {
   };
 
   CHAR_NAMES.forEach(name => {
-    const pos = rows[name];
-    // 全フェーズで画面中央下部に並べて配置 (X=400〜610, Y=475〜525)
-    const x = 400 + pos.col * 70;
-    const y = 475 + (pos.row - 1) * 50;
+    // フェーズ1のときのみ、初期整列位置 (X=400〜610, Y=475〜525) に座標をリセット
+    if (currentPhase === 1) {
+      const pos = rows[name];
+      const x = 400 + pos.col * 70;
+      const y = 475 + (pos.row - 1) * 50;
+      characters[name].x = x;
+      characters[name].y = y;
+    }
     
-    characters[name].x = x;
-    characters[name].y = y;
+    const x = characters[name].x;
+    const y = characters[name].y;
     
     const pawn = document.createElement("div");
     pawn.id = `char-pawn-${name}`;
     pawn.className = "char-pawn";
     if (name === playerChar) pawn.classList.add("player");
+    
+    // フェーズ2以降の開始時は transition なしで瞬時に前回の正解位置に配置
+    if (currentPhase > 1) {
+      pawn.classList.add("no-transition");
+    }
     
     pawn.style.left = `${x}px`;
     pawn.style.top = `${y}px`;
@@ -584,8 +593,9 @@ function updateTimerUI() {
   const percentage = Math.max(0, Math.min(100, (timeRemaining / (maxLimit * 1000)) * 100));
   barEl.style.width = `${percentage}%`;
 
-  // 制限時間の半分（50%）未満になったら、一時表示されていたマーカーを非表示にする
-  if (percentage < 50) {
+  // フェーズ開始から5秒（5000ms）経過したら、一時表示されていたマーカーを非表示にする
+  const elapsedMs = (maxLimit * 1000) - timeRemaining;
+  if (elapsedMs >= 5000) {
     hideTemporaryMarkers();
   }
 
