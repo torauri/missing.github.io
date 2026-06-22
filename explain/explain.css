@@ -1,0 +1,425 @@
+@import "../style.css";
+
+/* 説明モード専用のヘッダー調整 */
+#explain-header {
+  width: 95%;
+  max-width: 1024px;
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 12px;
+}
+
+/* ゲームに戻るボタン */
+.back-btn {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-glass);
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.back-btn:hover {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+  background: rgba(0, 242, 254, 0.05);
+}
+
+/* フェーズセレクター */
+.phase-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  padding: 5px 15px;
+  border-radius: 30px;
+}
+
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  color: var(--text-primary);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  transform: scale(1.2);
+}
+
+.phase-display {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.phase-dropdown {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  padding: 5px 10px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.phase-dropdown:focus {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 8px rgba(189, 0, 255, 0.3);
+}
+
+/* コントロールボタン */
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.neon-btn.success-btn {
+  background: transparent;
+  color: var(--neon-green);
+  border: 1.5px solid var(--neon-green);
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.neon-btn.success-btn:hover {
+  background: var(--neon-green);
+  color: var(--bg-primary);
+  box-shadow: 0 0 15px var(--neon-green);
+}
+
+.neon-btn.danger-btn {
+  background: transparent;
+  color: var(--neon-red);
+  border: 1.5px solid var(--neon-red);
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.neon-btn.danger-btn:hover {
+  background: var(--neon-red);
+  color: var(--bg-primary);
+  box-shadow: 0 0 15px var(--neon-red);
+}
+
+/* トグルボタン（予兆・フェーズ12ステップ） */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-glass);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: 1px solid var(--text-disabled);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn.future {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+  background: rgba(0, 242, 254, 0.05);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+}
+
+.toggle-btn.past {
+  border-color: var(--neon-purple);
+  color: var(--neon-purple);
+  background: rgba(189, 0, 255, 0.05);
+  box-shadow: 0 0 8px rgba(189, 0, 255, 0.2);
+}
+
+.toggle-btn.active {
+  border-color: var(--neon-yellow);
+  color: var(--neon-yellow);
+  background: rgba(255, 238, 0, 0.05);
+  box-shadow: 0 0 8px rgba(255, 238, 0, 0.2);
+}
+
+/* 操作説明HUD */
+#help-hud {
+  width: 95%;
+  max-width: 1024px;
+  padding: 8px 20px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+#help-hud strong {
+  color: var(--text-primary);
+}
+
+/* ドラッグ関連 */
+.char-pawn {
+  cursor: grab;
+}
+
+.char-pawn:active {
+  cursor: grabbing;
+}
+
+.char-pawn.dragging {
+  z-index: 100 !important;
+  cursor: grabbing;
+  transition: none !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.char-pawn.no-transition {
+  transition: none !important;
+}
+
+/* ドラッグ中に扇マーカーの範囲描画をドラッグ座標に追従させるための調整 */
+.char-pawn.marker-fan::after {
+  /* ドラッグ中は transition が none になるのでこれも瞬時に追従する */
+  transition: none !important;
+}
+
+/* 動的ターゲットエリア（説明用） */
+.target-area {
+  position: absolute;
+  background: rgba(12, 19, 38, 0.5);
+  border: 1px dashed rgba(0, 242, 254, 0.4);
+  color: var(--neon-blue);
+  border-radius: 8px;
+  font-family: var(--font-main);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  text-align: center;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  pointer-events: none; /* ドラッグ操作の邪魔にならないようにスルー */
+}
+
+/* キャラクターが中に入っているときのターゲットエリア強調 */
+.target-area.occupied {
+  border-style: solid;
+  border-color: var(--neon-green);
+  background: rgba(57, 255, 20, 0.08);
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+  color: var(--neon-green);
+}
+
+/* 正解のキャラが立っている時のターゲットエリア (さらに強調) */
+.target-area.correct {
+  border-style: solid;
+  border-color: var(--neon-gold);
+  background: rgba(255, 215, 0, 0.08);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  color: var(--neon-gold);
+}
+
+.popup-menu {
+  position: absolute;
+  z-index: 1000;
+  width: 250px;
+  right: 20px;
+  left: auto !important;
+  top: 20px !important;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-glass);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transform: scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.popup-menu.active {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.popup-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.popup-close:hover {
+  color: var(--neon-red);
+}
+
+.popup-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.popup-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.popup-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.popup-buttons.group-buttons {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.marker-opt-btn, .group-opt-btn {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 8px 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.marker-opt-btn:hover, .group-opt-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.marker-opt-btn.active[data-marker="頭割り"] {
+  border-color: var(--neon-orange);
+  background: rgba(255, 119, 0, 0.1);
+  color: var(--neon-orange);
+  box-shadow: 0 0 8px rgba(255, 119, 0, 0.2);
+}
+
+.marker-opt-btn.active[data-marker="扇"] {
+  border-color: var(--neon-yellow);
+  background: rgba(255, 238, 0, 0.1);
+  color: var(--neon-yellow);
+  box-shadow: 0 0 8px rgba(255, 238, 0, 0.2);
+}
+
+.marker-opt-btn.active[data-marker="円"] {
+  border-color: var(--neon-purple);
+  background: rgba(189, 0, 255, 0.1);
+  color: var(--neon-purple);
+  box-shadow: 0 0 8px rgba(189, 0, 255, 0.2);
+}
+
+.marker-opt-btn.active[data-marker="なし"] {
+  border-color: var(--neon-blue);
+  background: rgba(0, 242, 254, 0.1);
+  color: var(--neon-blue);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+}
+
+.group-opt-btn.active.g1 {
+  border-color: var(--neon-purple);
+  background: rgba(189, 0, 255, 0.15);
+  color: var(--neon-purple);
+  box-shadow: 0 0 8px rgba(189, 0, 255, 0.3);
+}
+
+.group-opt-btn.active.g2 {
+  border-color: var(--neon-blue);
+  background: rgba(0, 242, 254, 0.15);
+  color: var(--neon-blue);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+}
+
+.m-icon {
+  font-size: 0.95rem;
+}
+
+/* ポーン上部にマーカー名やグループを表示するバッジ */
+.char-info-badge {
+  position: absolute;
+  bottom: -16px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--border-glass);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.char-info-badge.g1 {
+  border-color: var(--neon-purple);
+  color: var(--neon-purple);
+}
+
+.char-info-badge.g2 {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+}
+
+/* 隠しクラス */
+.hidden {
+  display: none !important;
+}

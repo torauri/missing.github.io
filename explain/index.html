@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>説明モード - ミッシング -</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="explain.css">
+</head>
+<body>
+  <div id="app-container">
+    
+    <!-- メイン画面 -->
+    <section id="explain-screen" class="screen active">
+      <!-- 説明モード用ヘッダー -->
+      <header id="explain-header" class="glass-panel">
+        <div class="header-left">
+          <span class="label">EXPLAIN MODE</span>
+          <a href="../" class="back-btn">ゲームへ戻る</a>
+        </div>
+        
+        <!-- フェーズ切り替えコントローラー -->
+        <div class="phase-selector-container">
+          <button id="prev-phase-btn" class="nav-btn">◀</button>
+          <div class="phase-display">
+            <span class="label">PHASE</span>
+            <span id="current-phase-num" class="value text-neon-purple">01</span>
+            <span class="label-slash">/</span>
+            <span class="label-max">12</span>
+          </div>
+          <button id="next-phase-btn" class="nav-btn">▶</button>
+          
+          <select id="phase-select" class="phase-dropdown">
+            <option value="1">1回目塔踏み (PH1)</option>
+            <option value="2">2回目塔踏み (PH2)</option>
+            <option value="3">過去/未来誘導 (PH3)</option>
+            <option value="4">3回目塔踏み (PH4)</option>
+            <option value="5">4回目塔踏み (PH5)</option>
+            <option value="6">過去/未来誘導 (PH6)</option>
+            <option value="7">5回目塔踏み (PH7)</option>
+            <option value="8">6回目塔踏み (PH8)</option>
+            <option value="9">過去/未来誘導 (PH9)</option>
+            <option value="10">7回目塔踏み (PH10)</option>
+            <option value="11">8回目塔踏み (PH11)</option>
+            <option value="12">過去/未来誘導 (PH12)</option>
+          </select>
+        </div>
+
+        <div class="header-right">
+          <!-- コントロール群 -->
+          <div class="control-group">
+            <!-- 偶数フェーズ予兆切り替えトグル (初期非表示) -->
+            <div id="apoc-toggle-container" class="toggle-container hidden">
+              <span class="label">予兆:</span>
+              <button id="apoc-toggle-btn" class="toggle-btn past">過去の終焉</button>
+            </div>
+            
+            <!-- フェーズ12ステップ切り替えトグル (初期非表示) -->
+            <div id="p12-step-container" class="toggle-container hidden">
+              <span class="label">段階:</span>
+              <button id="p12-step-btn" class="toggle-btn">A集合 (Step1)</button>
+            </div>
+            
+            <button id="auto-pos-btn" class="neon-btn success-btn" title="マーカーとグループ条件に基づき、各キャラを正解の場所に自動配置します">正解配置</button>
+            <button id="reset-btn" class="neon-btn danger-btn" title="キャラクターの位置を初期整列位置に戻し、マーカーも初期化します">初期化</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- 操作説明ヘルプ -->
+      <div id="help-hud" class="glass-panel">
+        <p>💡 <strong>操作方法:</strong> キャラをドラッグで自由に移動 / タップでマーカー・グループを変更</p>
+      </div>
+
+      <!-- フィールド用コンテナ -->
+      <div id="game-container">
+        <!-- 1024x576の固定アスペクト比フィールド -->
+        <div id="game-field">
+          <!-- 背景グリッド -->
+          <div class="field-grid"></div>
+          
+          <!-- 基本オブジェクト (ボス・円) -->
+          <div id="boss-object" class="field-object boss">
+            <div class="boss-inner">
+              <span class="boss-icon">☠</span>
+            </div>
+            <!-- 終焉のテキスト表示エリア -->
+            <div id="apocalypse-text" class="apocalypse-text"></div>
+          </div>
+          
+          <div id="circle-left-object" class="field-object circle left-circle">
+            <span class="circle-label">左塔</span>
+          </div>
+          <div id="circle-right-object" class="field-object circle right-circle">
+            <span class="circle-label">右塔</span>
+          </div>
+
+          <!-- 動的ターゲットエリア配置エリア -->
+          <div id="target-areas-container"></div>
+
+          <!-- キャラクター配置エリア -->
+          <div id="characters-container"></div>
+          
+          <!-- マーカー/グループ変更ポップアップメニュー（動的に位置調整） -->
+          <div id="marker-popup-menu" class="glass-panel popup-menu hidden">
+            <div class="popup-header">
+              <span id="popup-char-name">MT</span> のステータス変更
+              <button id="popup-close-btn" class="popup-close">×</button>
+            </div>
+            <div class="popup-section">
+              <span class="popup-label">マーカー:</span>
+              <div class="popup-buttons">
+                <button class="marker-opt-btn" data-marker="頭割り" title="頭割り (💢)"><span class="m-icon">💢</span>頭割り</button>
+                <button class="marker-opt-btn" data-marker="扇" title="扇 (📐)"><span class="m-icon">📐</span>扇</button>
+                <button class="marker-opt-btn" data-marker="円" title="円 (🔵)"><span class="m-icon">🔵</span>円</button>
+                <button class="marker-opt-btn" data-marker="なし" title="なし (ー)"><span class="m-icon">ー</span>なし</button>
+              </div>
+            </div>
+            <div class="popup-section">
+              <span class="popup-label">グループ:</span>
+              <div class="popup-buttons group-buttons">
+                <button id="group-btn-1" class="group-opt-btn g1" data-group="グループ1">グループ1</button>
+                <button id="group-btn-2" class="group-opt-btn g2" data-group="グループ2">グループ2</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="explain.js"></script>
+</body>
+</html>
