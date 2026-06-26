@@ -8,6 +8,8 @@ let startTime = 0;
 let isAnimating = false;
 let hideMarkersAfterPhase1 = false;
 let phase12Step = 1;
+let adjustByPrevTowerMode = false;
+let phaseHistory = [];
 
 // 追加の操作・タイマー状態
 let controlType = "wasd"; // "wasd" または "joystick"
@@ -512,6 +514,8 @@ function startGame() {
   currentPhase = 1;
   lastApocalypseText = "";
   hideMarkersAfterPhase1 = document.getElementById("hide-markers-mode-chk").checked;
+  adjustByPrevTowerMode = document.getElementById("adjust-by-prev-tower-chk").checked;
+  phaseHistory = [];
   
   // 補助マーカーボタンの表示切り替え
   const helperContainer = document.getElementById("helper-marker-container");
@@ -540,7 +544,9 @@ function assignInitialMarkers() {
       marker: MARKER_NONE,
       group: "",
       x: 0,
-      y: 0
+      y: 0,
+      lastCorrectX: null,
+      lastCorrectY: null
     };
   });
 
@@ -599,6 +605,14 @@ function startPhase(phaseNum) {
   currentPhase = phaseNum;
   isAnimating = false;
   isGameRunning = false;
+
+  // 1, 5, 11 回目塔踏みフェーズ開始時に前回の塔位置情報をクリア
+  if ([1, 5, 11].includes(phaseNum)) {
+    CHAR_NAMES.forEach(name => {
+      characters[name].lastCorrectX = null;
+      characters[name].lastCorrectY = null;
+    });
+  }
   
   if (gameLoopId) cancelAnimationFrame(gameLoopId);
   if (timerInterval) clearInterval(timerInterval);
@@ -791,37 +805,17 @@ function resetCharacterPositions() {
       else if (m === MARKER_CIRCLE) pawn.classList.add("marker-circle");
     }
     
-    // 補助マーカー用要素の生成
+    // 補助マーカー用要素の生成（中身は updateHelperMarkers 内で最新のグループ設定に基づき設定）
     const helperMarker = document.createElement("div");
     helperMarker.className = "helper-marker";
-    const pairChar = getPlayerPairCharacter();
-    let showHelper = false;
-    let helperText = "";
-    if (helperMarkerType) {
-      if (name === playerChar) {
-        showHelper = true;
-        helperText = (helperMarkerType === "chain") ? "🔗" : "🚫";
-      } else if (name === pairChar) {
-        const pairMarker = characters[pairChar]?.marker;
-        if (pairMarker === MARKER_FAN) {
-          showHelper = true;
-          helperText = "🔗";
-        } else if (pairMarker === MARKER_CIRCLE) {
-          showHelper = true;
-          helperText = "🚫";
-        }
-      }
-    }
-    if (showHelper) {
-      helperMarker.textContent = helperText;
-      helperMarker.style.display = "block";
-    } else {
-      helperMarker.style.display = "none";
-    }
+    helperMarker.style.display = "none";
     pawn.appendChild(helperMarker);
     
     container.appendChild(pawn);
   });
+
+  // 補助マーカーを最新の状態に更新
+  updateHelperMarkers();
 }
 
 // 設定ファイル（config.json）に基づく回答ボタンの描画
@@ -1185,22 +1179,30 @@ function handleTimeUp() {
   const phData = config.phases[String(currentPhase)] || {};
   const priority = phData.priority || "";
 
-  // NPC 7人（プレイヤー以外）を正解の位置にワープ
-  CHAR_NAMES.forEach(name => {
-    if (name === playerChar) return;
+  const isTowerPhase = getPhaseType(currentPhase) !== "past_future";
 
-    // このキャラが正解となるエリアを探す
+  // 1. 全員の正解エリアをまず計算（lastCorrectX/Yが書き換わる前に一斉計算）
+  const correctAreas = {};
+  CHAR_NAMES.forEach(name => {
     let destination = null;
     for (let area of currentTargetAreas) {
-      if (evaluateButtonCorrectness(name, area.condition, priority, area.priority_type)) {
+      if (evaluateButtonCorrectness(name, area, priority)) {
         destination = area;
         break;
       }
     }
+    correctAreas[name] = destination;
+  });
 
+  // NPC 7人（プレイヤー以外）を正解の位置にワープ
+  CHAR_NAMES.forEach(name => {
+    if (name === playerChar) return;
+
+    const destination = correctAreas[name];
     if (destination) {
       characters[name].x = destination.x;
       characters[name].y = destination.y;
+
       const pawn = document.getElementById(`char-pawn-${name}`);
       if (pawn) {
         pawn.style.left = `${destination.x}px`;
@@ -1210,12 +1212,17 @@ function handleTimeUp() {
   });
 
   // プレイヤーの正答チェック
-  let playerCorrectArea = null;
-  for (let area of currentTargetAreas) {
-    if (evaluateButtonCorrectness(playerChar, area.condition, priority, area.priority_type)) {
-      playerCorrectArea = area;
-      break;
-    }
+  const playerCorrectArea = correctAreas[playerChar];
+
+  // 全員の移動先決定と前回の座標参照が終わったので、今回の正解位置を記録する
+  if (isTowerPhase) {
+    CHAR_NAMES.forEach(name => {
+      const area = correctAreas[name];
+      if (area) {
+        characters[name].lastCorrectX = area.x;
+        characters[name].lastCorrectY = area.y;
+      }
+    });
   }
 
   // 少しのディレイを置いて判定を行い、ワープしたNPCの配置を見せる
@@ -1239,6 +1246,10 @@ function handleTimeUp() {
         pawn.style.left = `${playerCorrectArea.x}px`;
         pawn.style.top = `${playerCorrectArea.y}px`;
       }
+      
+      // 履歴に記録
+      recordPhaseHistory(true, null, playerCorrectArea, correctAreas);
+      
       setTimeout(handleSuccess, 300);
     } else {
       let failReason = "時間内に正しい立ち位置に移動できませんでした";
@@ -1265,13 +1276,19 @@ function handleTimeUp() {
         failReason = `ギミック発動時にどの散開位置・塔にも入っていませんでした（本来は ${playerCorrectArea ? playerCorrectArea.el.textContent.replace(/<br>/g, " ") : "別の場所"}）`;
       }
 
+      // 履歴に記録
+      recordPhaseHistory(false, stoodArea, playerCorrectArea, correctAreas);
+
       handleFailure(failReason);
     }
   }, 350);
 }
 
 // 優先度を含めたボタンの正答判定
-function evaluateButtonCorrectness(playerChar, conditionStr, priority, priorityType) {
+function evaluateButtonCorrectness(playerChar, area, priority) {
+  const conditionStr = area.condition;
+  const priorityType = area.priority_type || "";
+
   if (!priorityType || priorityType === "") {
     // 優先度判定が設定されていない場合は、従来どおり個人が条件を満たしているかで判定
     const playerInfo = characters[playerChar];
@@ -1293,17 +1310,78 @@ function evaluateButtonCorrectness(playerChar, conditionStr, priority, priorityT
     return false;
   }
 
-  // 2. 優先度リストの解析 (例: "H2 > H1 > ST > MT > D1 > D2 > D3 > D4")
-  const priorityList = priority ? priority.split(">").map(s => s.trim()) : [];
+  // --- 特殊モード：「前回同塔被り調整モード」 ---
+  if (adjustByPrevTowerMode && currentPhase < 11 && matchingChars.length === 2) {
+    const charA = matchingChars[0];
+    const charB = matchingChars[1];
 
-  // 3. 条件を満たすキャラを優先度順にソート (最も優先度が高いものが先頭に来る)
-  matchingChars.sort((a, b) => {
-    let idxA = priorityList.indexOf(a);
-    let idxB = priorityList.indexOf(b);
-    if (idxA === -1) idxA = 999;
-    if (idxB === -1) idxB = 999;
-    return idxA - idxB;
-  });
+    const hasPrevA = characters[charA].lastCorrectX !== null && characters[charA].lastCorrectY !== null;
+    const hasPrevB = characters[charB].lastCorrectX !== null && characters[charB].lastCorrectY !== null;
+
+    if (hasPrevA && hasPrevB) {
+      const bossX = config.boss.x;
+      const isLeftA = characters[charA].lastCorrectX < bossX;
+      const isLeftB = characters[charB].lastCorrectX < bossX;
+
+      let correctSideLeft = null;
+
+      if (isLeftA === isLeftB) {
+        // 前回踏んだ塔が同じ（両方とも左、または両方とも右）：南側が逆側に調整する
+        const originalSideLeft = isLeftA; // 被った前回の側が左か
+
+        // 前回のY座標が大きい方を南（下）、小さい方を北（上）とする
+        const yA = characters[charA].lastCorrectY;
+        const yB = characters[charB].lastCorrectY;
+
+        let northChar, southChar;
+        if (yA < yB) {
+          northChar = charA;
+          southChar = charB;
+        } else {
+          northChar = charB;
+          southChar = charA;
+        }
+
+        if (playerChar === northChar) {
+          correctSideLeft = originalSideLeft;
+        } else if (playerChar === southChar) {
+          correctSideLeft = !originalSideLeft;
+        }
+      } else {
+        // 前回踏んだ塔が異なる（被りなし）：それぞれ前回と同じ側に行く
+        if (playerChar === charA) {
+          correctSideLeft = isLeftA;
+        } else if (playerChar === charB) {
+          correctSideLeft = isLeftB;
+        }
+      }
+
+      if (correctSideLeft !== null) {
+        const isAreaLeft = area.x < bossX;
+        return isAreaLeft === correctSideLeft;
+      }
+    }
+  }
+  // ------------------------------------------
+
+  // --- 特殊モード：「最終塔踏み補助マーカー番号優先モード」 ---
+  if (currentPhase === 11 && matchingChars.every(c => characters[c].helperNumber !== null && characters[c].helperNumber !== undefined)) {
+    matchingChars.sort((a, b) => {
+      return characters[a].helperNumber - characters[b].helperNumber;
+    });
+  } else {
+    // 2. 優先度リストの解析 (例: "H2 > H1 > ST > MT > D1 > D2 > D3 > D4")
+    const priorityList = priority ? priority.split(">").map(s => s.trim()) : [];
+
+    // 3. 条件を満たすキャラを優先度順にソート (最も優先度が高いものが先頭に来る)
+    matchingChars.sort((a, b) => {
+      let idxA = priorityList.indexOf(a);
+      let idxB = priorityList.indexOf(b);
+      if (idxA === -1) idxA = 999;
+      if (idxB === -1) idxB = 999;
+      return idxA - idxB;
+    });
+  }
 
   // 4. 大きい方 (より左側、インデックス最小) / 小さい方 (より右側、インデックス最大) を取得して比較
   let targetChar = "";
@@ -1506,6 +1584,7 @@ function proceedToNextPhase() {
 // 不正解時の処理
 function handleFailure(reason = "立ち位置が違います") {
   document.getElementById("fail-cause-text").textContent = `要因: ${reason}`;
+  renderHistoryUI("game-over-history-list", "game-over-history-container", "game-over-history-char");
   document.getElementById("game-over-overlay").classList.add("active");
 }
 
@@ -1517,7 +1596,7 @@ function showGameClear() {
   
   document.getElementById("final-char").textContent = playerChar;
   document.getElementById("clear-time").textContent = `${min}:${sec}`;
-  
+  renderHistoryUI("game-clear-history-list", "game-clear-history-container", "game-clear-history-char");
   document.getElementById("game-clear-overlay").classList.add("active");
 }
 
@@ -1556,8 +1635,160 @@ function resetToStart() {
   helperMarkerType = "";
   updateHelperMarkers();
 
+  // 履歴表示のクリアと非表示
+  document.getElementById("game-over-history-container").style.display = "none";
+  document.getElementById("game-clear-history-container").style.display = "none";
+  document.getElementById("game-over-history-list").innerHTML = "";
+  document.getElementById("game-clear-history-list").innerHTML = "";
+
   playerChar = null;
   setupCharacterSelection();
+}
+
+function recordPhaseHistory(isCorrect, stoodArea = null, playerCorrectArea = null, correctAreas = null) {
+  const phaseName = PHASE_NAMES[currentPhase] || `PHASE ${currentPhase}`;
+  const priority = (config.phases[String(currentPhase)] || {}).priority || "";
+
+  const charHistory = {};
+
+  CHAR_NAMES.forEach(name => {
+    // 正解エリアの特定
+    let correctArea = null;
+    if (correctAreas && correctAreas[name]) {
+      correctArea = correctAreas[name];
+    } else if (name === playerChar && playerCorrectArea) {
+      correctArea = playerCorrectArea;
+    } else {
+      for (let area of currentTargetAreas) {
+        if (evaluateButtonCorrectness(name, area, priority)) {
+          correctArea = area;
+          break;
+        }
+      }
+    }
+    const correctLabel = correctArea ? correctArea.el.textContent.replace(/<br>/g, " ") : "不明";
+
+    // 実際に立っていたエリアの特定
+    let cStoodArea = null;
+    if (name === playerChar && stoodArea) {
+      cStoodArea = stoodArea;
+    } else {
+      const cx = characters[name].x;
+      const cy = characters[name].y;
+      for (let area of currentTargetAreas) {
+        const withinX = cx >= (area.x - area.w / 2) && cx <= (area.x + area.w / 2);
+        const withinY = cy >= (area.y - area.h / 2) && cy <= (area.y + area.h / 2);
+        if (withinX && withinY) {
+          cStoodArea = area;
+          break;
+        }
+      }
+    }
+    const stoodLabel = cStoodArea ? cStoodArea.el.textContent.replace(/<br>/g, " ") : "エリア外";
+
+    // このキャラが正解エリア内にいたか
+    let charCorrect = false;
+    if (correctArea) {
+      const cx = characters[name].x;
+      const cy = characters[name].y;
+      const withinX = cx >= (correctArea.x - correctArea.w / 2) && cx <= (correctArea.x + correctArea.w / 2);
+      const withinY = cy >= (correctArea.y - correctArea.h / 2) && cy <= (correctArea.y + correctArea.h / 2);
+      charCorrect = withinX && withinY;
+    }
+
+    charHistory[name] = {
+      stood: stoodLabel,
+      correct: correctLabel,
+      isCorrect: charCorrect
+    };
+  });
+
+  phaseHistory.push({
+    phase: currentPhase,
+    name: phaseName,
+    isCorrect: isCorrect,
+    characters: charHistory
+  });
+}
+
+function renderHistoryUI(listId, containerId, charId) {
+  const listEl = document.getElementById(listId);
+  const containerEl = document.getElementById(containerId);
+  const charEl = document.getElementById(charId);
+  if (!listEl || !containerEl || !charEl) return;
+  
+  charEl.textContent = `${playerChar} (${characters[playerChar].group})`;
+  listEl.innerHTML = "";
+  
+  phaseHistory.forEach((item, index) => {
+    const li = document.createElement("li");
+    li.className = `phase-history-item ${item.isCorrect ? "correct" : "fail"}`;
+    li.id = `history-item-${listId}-${index}`;
+    
+    const numStr = String(item.phase).padStart(2, "0");
+    const stoodDesc = item.characters[playerChar].isCorrect ? "正解" : "失敗";
+    
+    // 詳細テーブルのHTML生成
+    let tableRows = "";
+    CHAR_NAMES.forEach(name => {
+      const charData = item.characters[name];
+      const isPlayer = name === playerChar;
+      const rowClass = (isPlayer ? "highlight-player " : "") + (charData.isCorrect ? "char-correct" : "char-fail");
+      const nameLabel = isPlayer ? `${name} (YOU)` : name;
+      const statusIcon = charData.isCorrect ? "✔️" : "❌";
+      
+      tableRows += `
+        <tr class="${rowClass}">
+          <td>${nameLabel}</td>
+          <td>${charData.stood}</td>
+          <td>${charData.correct}</td>
+          <td style="text-align: center;">${statusIcon}</td>
+        </tr>
+      `;
+    });
+    
+    const detailsTableHtml = `
+      <table class="history-details-table" id="details-${listId}-${index}">
+        <thead>
+          <tr>
+            <th>キャラ</th>
+            <th>立ち位置</th>
+            <th>正解位置</th>
+            <th style="text-align: center;">判定</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+    `;
+    
+    li.innerHTML = `
+      <div class="history-summary-line">
+        <span class="history-phase-num">PH ${numStr}</span>
+        <span class="history-phase-name">${item.name}</span>
+        <span class="history-phase-details" style="font-weight: bold; color: ${item.isCorrect ? "var(--neon-blue)" : "var(--neon-red)"}">
+          あなた: ${stoodDesc} ▾
+        </span>
+      </div>
+      ${detailsTableHtml}
+    `;
+    
+    // クリックイベントの登録（アコーディオン）
+    li.addEventListener("click", (e) => {
+      if (e.target.closest(".history-details-table")) return;
+      
+      const table = document.getElementById(`details-${listId}-${index}`);
+      if (table) {
+        const isVisible = table.style.display === "table";
+        table.style.display = isVisible ? "none" : "table";
+      }
+    });
+    
+    listEl.appendChild(li);
+  });
+  
+  containerEl.style.display = "block";
 }
 
 function getPlayerPairCharacter() {
@@ -1570,8 +1801,90 @@ function getPlayerPairCharacter() {
   return null;
 }
 
+function assignHelperNumbers(playerSelectedType) {
+  // すでに割り当てられていて、かつ helperType が現在の選択と一致していれば何もしない
+  if (characters[playerChar].helperType === playerSelectedType && characters[playerChar].helperNumber !== null) {
+    return;
+  }
+
+  // 1. 全員の helper 情報を初期化
+  CHAR_NAMES.forEach(name => {
+    characters[name].helperNumber = null;
+    characters[name].helperType = null;
+  });
+
+  // 2. 頭割りの2人を特定
+  const shareChars = CHAR_NAMES.filter(name => characters[name].marker === MARKER_SHARE);
+  let chainShareChar = null;
+  let forbiddenShareChar = null;
+
+  if (shareChars.length === 2) {
+    const pGroup = characters[playerChar].group;
+    const playerSideShare = shareChars.find(name => characters[name].group === pGroup);
+    const otherSideShare = shareChars.find(name => characters[name].group !== pGroup);
+
+    if (playerSelectedType === "chain") {
+      chainShareChar = playerSideShare;
+      forbiddenShareChar = otherSideShare;
+    } else {
+      chainShareChar = otherSideShare;
+      forbiddenShareChar = playerSideShare;
+    }
+  }
+
+  // 3. 鎖グループ（4名）：扇の3名 ＋ 頭割りのうち鎖になった1名
+  // このうち、PH11で塔を踏む「グループ1の扇2名」
+  const fanG1 = CHAR_NAMES.filter(name => characters[name].marker === MARKER_FAN && characters[name].group === "グループ1");
+  // 残り（グループ2の扇1名 ＋ 頭割り）
+  const fanG2AndShare = CHAR_NAMES.filter(name => characters[name].marker === MARKER_FAN && characters[name].group === "グループ2");
+  if (chainShareChar) fanG2AndShare.push(chainShareChar);
+
+  // 4. 禁止グループ（4名）：円の3名 ＋ 頭割りのうち禁止になった1名
+  // このうち、PH11で塔を踏む「グループ1の円2名」
+  const circleG1 = CHAR_NAMES.filter(name => characters[name].marker === MARKER_CIRCLE && characters[name].group === "グループ1");
+  // 残り（グループ2の円1名 ＋ 頭割り）
+  const circleG2AndShare = CHAR_NAMES.filter(name => characters[name].marker === MARKER_CIRCLE && characters[name].group === "グループ2");
+  if (forbiddenShareChar) circleG2AndShare.push(forbiddenShareChar);
+
+  // シャッフル・割り当て関数
+  const assignGroup = (g1Array, g2Array, type) => {
+    // g1の2名に 1 と 2 をランダムに割り当てる
+    if (Math.random() < 0.5) {
+      characters[g1Array[0]].helperNumber = 1;
+      characters[g1Array[1]].helperNumber = 2;
+    } else {
+      characters[g1Array[0]].helperNumber = 2;
+      characters[g1Array[1]].helperNumber = 1;
+    }
+    characters[g1Array[0]].helperType = type;
+    characters[g1Array[1]].helperType = type;
+
+    // g2の2名に 1 と 2 をランダムに割り当てる
+    if (Math.random() < 0.5) {
+      characters[g2Array[0]].helperNumber = 1;
+      characters[g2Array[1]].helperNumber = 2;
+    } else {
+      characters[g2Array[0]].helperNumber = 2;
+      characters[g2Array[1]].helperNumber = 1;
+    }
+    characters[g2Array[0]].helperType = type;
+    characters[g2Array[1]].helperType = type;
+  };
+
+  if (fanG1.length === 2 && fanG2AndShare.length === 2) {
+    assignGroup(fanG1, fanG2AndShare, "chain");
+  }
+  if (circleG1.length === 2 && circleG2AndShare.length === 2) {
+    assignGroup(circleG1, circleG2AndShare, "forbidden");
+  }
+}
+
 function updateHelperMarkers() {
-  const pairChar = getPlayerPairCharacter();
+  if (helperMarkerType) {
+    assignHelperNumbers(helperMarkerType);
+  }
+
+  const playerGroup = characters[playerChar]?.group;
   CHAR_NAMES.forEach(name => {
     const pawn = document.getElementById(`char-pawn-${name}`);
     if (pawn) {
@@ -1585,17 +1898,15 @@ function updateHelperMarkers() {
       let showHelper = false;
       let helperText = "";
       if (helperMarkerType) {
-        if (name === playerChar) {
-          showHelper = true;
-          helperText = (helperMarkerType === "chain") ? "🔗" : "🚫";
-        } else if (name === pairChar) {
-          const pairMarker = characters[pairChar]?.marker;
-          if (pairMarker === MARKER_FAN) {
+        if (playerGroup && characters[name].group === playerGroup) {
+          const type = characters[name]?.helperType;
+          const num = characters[name]?.helperNumber ? String(characters[name].helperNumber) : "";
+          if (type === "chain") {
             showHelper = true;
-            helperText = "🔗";
-          } else if (pairMarker === MARKER_CIRCLE) {
+            helperText = "🔗" + num;
+          } else if (type === "forbidden") {
             showHelper = true;
-            helperText = "🚫";
+            helperText = "🚫" + num;
           }
         }
       }

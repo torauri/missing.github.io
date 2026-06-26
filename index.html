@@ -33,9 +33,16 @@
         <div class="mode-selection-container">
           <div class="mode-selection">
             <label class="checkbox-container">
-              <input type="checkbox" id="hide-markers-mode-chk">
+              <input type="checkbox" id="hide-markers-mode-chk" checked>
               <span class="checkmark"></span>
               フェーズ1の後はキャラクターのマークを表示しない
+            </label>
+          </div>
+          <div class="mode-selection">
+            <label class="checkbox-container">
+              <input type="checkbox" id="adjust-by-prev-tower-chk" checked>
+              <span class="checkmark"></span>
+              前回同塔のペアでマーカーが被った場合、南の人が調整する
             </label>
           </div>
           
@@ -168,6 +175,11 @@
         <p class="overlay-desc">正解の立ち位置ではありませんでした。<br>ドマ城</p>
         <p class="fail-cause" id="fail-cause-text" style="color: var(--neon-orange); font-size: 1.1rem; font-weight: 800; margin-bottom: 25px; text-shadow: 0 0 8px rgba(255,119,0,0.5);"></p>
         
+        <div class="phase-history-container" id="game-over-history-container" style="display: none;">
+          <h3>フェーズ履歴 (あなた: <span id="game-over-history-char">-</span>)</h3>
+          <ul class="phase-history-list" id="game-over-history-list"></ul>
+        </div>
+        
         <div class="game-over-buttons" style="display: flex; gap: 15px; justify-content: center;">
           <button id="retry-game-btn" class="neon-btn danger">リトライ</button>
           <button id="fail-confirm-btn" class="neon-btn secondary-btn" style="border: 2px solid var(--text-secondary); color: var(--text-secondary); background: transparent; box-shadow: none;">立ち位置を確認</button>
@@ -190,6 +202,11 @@
             <span class="stat-label">クリア時間</span>
             <span id="clear-time" class="stat-value text-neon-blue">00:00</span>
           </div>
+        </div>
+        
+        <div class="phase-history-container" id="game-clear-history-container" style="display: none;">
+          <h3>フェーズ履歴 (あなた: <span id="game-clear-history-char">-</span>)</h3>
+          <ul class="phase-history-list" id="game-clear-history-list"></ul>
         </div>
         
         <button id="restart-game-btn" class="neon-btn primary">最初からプレイする</button>

@@ -1367,3 +1367,146 @@ body {
   left: 50px !important;
   top: 50px !important;
 }
+
+/* --- フェーズ履歴表示のスタイル --- */
+.phase-history-container {
+  margin-top: 15px;
+  margin-bottom: 20px;
+  max-height: 160px;
+  overflow-y: auto;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.phase-history-container h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 5px;
+  letter-spacing: 0.05em;
+}
+
+.phase-history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phase-history-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.phase-history-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.phase-history-item.correct {
+  border-left-color: var(--neon-blue);
+  color: var(--text-secondary);
+}
+
+.phase-history-item.fail {
+  border-left-color: var(--neon-red);
+  background: rgba(255, 0, 85, 0.03);
+  color: var(--neon-red);
+  font-weight: 600;
+}
+
+.history-phase-num {
+  font-weight: 700;
+  margin-right: 8px;
+  color: var(--text-muted);
+}
+
+.phase-history-item.correct .history-phase-num {
+  color: var(--neon-blue);
+}
+
+.phase-history-item.fail .history-phase-num {
+  color: var(--neon-red);
+}
+
+.history-phase-name {
+  color: var(--text-primary);
+  margin-right: auto;
+}
+
+.history-phase-details {
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+/* アコーディオン内の詳細テーブルのスタイル */
+.history-summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.history-details-table {
+  display: none; /* 初期は非表示 */
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.history-details-table th, .history-details-table td {
+  padding: 5px 6px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.history-details-table th {
+  background: rgba(255, 255, 255, 0.07);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.history-details-table tr.char-fail td {
+  color: var(--neon-red);
+}
+
+.history-details-table tr.char-correct td {
+  color: var(--text-muted);
+}
+
+.history-details-table tr.highlight-player {
+  background: rgba(189, 0, 255, 0.08);
+  font-weight: 700;
+}
+
+.history-details-table tr.highlight-player td {
+  color: var(--text-primary);
+}
+
+.history-details-table tr.highlight-player.char-fail td {
+  color: var(--neon-red);
+  text-shadow: 0 0 5px rgba(255, 0, 85, 0.3);
+}
+
